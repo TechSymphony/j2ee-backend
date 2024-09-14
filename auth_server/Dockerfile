@@ -11,7 +11,7 @@ WORKDIR /app
 #  run the application as a non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 
-ARG FILE_JAR="movie_booking-0.0.1-SNAPSHOT.jar"
+ARG FILE_JAR="auth_server-0.0.1-SNAPSHOT.jar"
 COPY --from=build /app/target/$FILE_JAR app.jar
 
 RUN chown spring:spring /app
