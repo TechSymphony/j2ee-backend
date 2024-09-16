@@ -54,7 +54,7 @@ jobs:
           key: ${{ secrets.SSH_KEY_AUTH }}
           username: auth-server
           script: |
-            cd /home/auth-server
+            cd /home/auth-server/j2ee-backend
             git pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_AUTH}}:latest
           # docker compose stop
