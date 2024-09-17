@@ -55,7 +55,8 @@ jobs:
           username: auth-server
           script: |
             cd /home/auth-server/j2ee-backend
-            git pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_AUTH}}:latest
+            docker stop $(docker ps -a -q)
+            docker run ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_AUTH}}:latest
           # docker compose stop
           # docker compose up app -d 
