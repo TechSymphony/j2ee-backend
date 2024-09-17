@@ -22,6 +22,6 @@ EXPOSE 8080
 ARG JAVA_OPTIONS="-Xmx512m -Xms64m"
 
 # CMD ["java", "-jar", "app.jar"]
-# Test CD #1
+# Test CD #2
 
 ENTRYPOINT java -jar $JAVA_OPTIONS "app.jar"
