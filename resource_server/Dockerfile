@@ -23,6 +23,6 @@ ARG JAVA_OPTIONS="-Xmx512m -Xms64m"
 
 # CMD ["java", "-jar", "app.jar"]
 
-# test CD #2
+# test CD #3
 
 ENTRYPOINT java -jar $JAVA_OPTIONS "app.jar"
