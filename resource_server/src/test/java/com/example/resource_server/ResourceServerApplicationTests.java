@@ -1,4 +1,4 @@
-package com.example.resource_server;
+package com.tech_symfony.resource_server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

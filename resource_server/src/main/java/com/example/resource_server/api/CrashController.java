@@ -1,5 +1,5 @@
 
-package com.example.resource_server.api;
+package com.tech_symfony.resource_server.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;

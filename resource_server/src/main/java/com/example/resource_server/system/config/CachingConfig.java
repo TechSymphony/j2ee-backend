@@ -1,5 +1,5 @@
 
-package com.example.resource_server.system.config;
+package com.tech_symfony.resource_server.system.config;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;

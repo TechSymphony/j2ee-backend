@@ -1,4 +1,4 @@
-package com.example.resource_server.system.exception;
+package com.tech_symfony.resource_server.system.exception;
 
 import java.util.ArrayList;
 import java.util.List;
