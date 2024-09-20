@@ -1,0 +1,51 @@
+
+server:
+  port: ${ENV_PORT}
+
+spring:
+  flyway:
+    baseline-version : 0
+    baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_SERVER_URL}
+#      client:
+#        registration:
+#          google:
+#            clientId: ${GOOGLE_CLIENT_ID}
+#            clientSecret: ${GOOGLE_CLIENT_SECRET}
+#            scope:
+#              - email
+#              - profile
+#              - phone
+#            redirect-uri:
+#              - ${BASE_URL}/oauth2/callback/google
+#              - https://oauth.pstmn.io/v1/browser-callback
+#              - https://oauth.pstmn.io/v1/callback
+#              - http://localhost:8080/api/v1/auth/callback
+  config:
+    import: optional:configtree:/run/secrets/ , optional:file:.env[.properties]
+  application:
+    name: resource_server
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+logging:
+  level:
+    org.springframework.security: ${ DEBUG }
+
+mail:
+  username: ${MAIL}
+
+
