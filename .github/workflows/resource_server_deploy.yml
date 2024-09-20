@@ -57,6 +57,6 @@ jobs:
             cd ~/j2ee-backend
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_RESOURCE}}:latest
             docker stop $(docker ps -a -q)
-            docker run -p 8080:8080 -d ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_RESOURCE}}:latest
+            docker run -p 8080:8080 --env-file ./.env -d ${{ secrets.DOCKERHUB_USERNAME }}/${{vars.PROJECT_NAME_RESOURCE}}:latest
           # docker compose stop
           # docker compose up app -d 
