@@ -3,6 +3,17 @@ server:
   port: ${ENV_PORT}
 
 spring:
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
   flyway:
     baseline-version : 0
     baseline-on-migrate: true
@@ -46,6 +57,6 @@ logging:
     org.springframework.security: ${ DEBUG }
 
 mail:
-  username: ${MAIL}
+
 
 
