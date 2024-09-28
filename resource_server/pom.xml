@@ -105,6 +105,19 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+		<!-- Telegram -->
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots-longpolling</artifactId>
+			<version>7.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots-client</artifactId>
+			<version>7.7.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
