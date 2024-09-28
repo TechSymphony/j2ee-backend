@@ -21,7 +21,7 @@ public class ResourceServerConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "auth/**").permitAll()
                         //swagger docs
-                        .requestMatchers("/swagger-ui/**", "/v3/**", "/swagger-ui.html", "/openapi-3.0.yml").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/**", "/swagger-ui.html", "/openapi-3.0.yml", "/image/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

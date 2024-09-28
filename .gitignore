@@ -70,3 +70,5 @@ build/
 /*/.vscode/
 
 .env
+.devcontainer
+.vscode
