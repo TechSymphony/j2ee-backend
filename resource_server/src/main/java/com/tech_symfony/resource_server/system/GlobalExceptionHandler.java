@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<ErrorVm> handleConstraintViolation(ConstraintViolationException ex) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 
         List<String> errors = ex.getConstraintViolations().stream()
                 .map(violation -> String.format("%s: %s",

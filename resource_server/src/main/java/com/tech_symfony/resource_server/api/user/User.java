@@ -11,9 +11,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 
+@DynamicUpdate
 @Getter
 @Setter
 @Entity
@@ -35,11 +37,10 @@ public class User extends BaseEntity {
     private String phone;
 
     @Size(max = 255)
-    @NotNull
     @Column(name = "password", nullable = false)
-    @NotBlank(message = "Password must not be blank")
     @JsonIgnore
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotNull
     private String password;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
