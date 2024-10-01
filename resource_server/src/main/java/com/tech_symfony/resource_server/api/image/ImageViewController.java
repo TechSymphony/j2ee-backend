@@ -17,13 +17,13 @@ public class ImageViewController {
 
     @GetMapping(value = "/image/{id}", produces = "image/*")
     @ResponseBody
-    public FileSystemResource getImage(@PathVariable String id) {
+    public FileSystemResource getImage(@PathVariable String id) throws Exception {
         return new FileSystemResource(imageService.getImage(id));
     }
 
     @PostMapping(value = "/image/upload", produces = "text/html")
     @ResponseBody
-    public String sendImage(@RequestParam("image")MultipartFile image) {
+    public String sendImage(@RequestParam("image")MultipartFile image) throws Exception {
         return imageService.sendImage(image);
     }
 }

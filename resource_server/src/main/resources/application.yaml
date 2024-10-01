@@ -58,5 +58,7 @@ logging:
 
 mail:
 
-
+telegram:
+  bot_token: ${TELEGRAM_BOT_TOKEN}
+  group: ${TELEGRAM_GROUP}
 
