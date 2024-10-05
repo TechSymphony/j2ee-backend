@@ -1,10 +1,12 @@
 package com.tech_symfony.resource_server.api.categories;
 
+import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryDetailVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryListVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +20,10 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryListVm> getAllCampaigns() {
-        return categoryService.findAll();
+    public Page<CategoryListVm> getAllCampaigns(@RequestParam(defaultValue = "0") Integer page,
+                                                @RequestParam(defaultValue = "10") Integer limit,
+                                                @RequestParam(defaultValue = "id") String sortBy) {
+        return categoryService.findAll(page,limit,sortBy);
     }
 
     @GetMapping("/{id}")

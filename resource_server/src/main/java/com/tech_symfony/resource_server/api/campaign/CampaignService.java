@@ -7,14 +7,20 @@ import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public interface CampaignService {
-    List<CampaignListVm> findAll();
+    Page<CampaignListVm> findAll(  Integer page,
+                                   Integer limit,
+                                   String sortBy);
 
     CampaignDetailVm findById(Integer id);
 
@@ -33,10 +39,11 @@ class DefaultCampaignService implements CampaignService {
     private final CampaignMapper campaignMapper;
 
     @Override
-    public List<CampaignListVm> findAll() {
-        return campaignRepository.findAll().stream()
-                .map(campaignMapper::entityToCampaignListVm)
-                .collect(Collectors.toList());
+    public Page<CampaignListVm> findAll(Integer page,
+                                        Integer limit,
+                                        String sortBy) {
+        Pageable paging = PageRequest.of(page, limit);
+        return campaignRepository.findAll(paging).map(campaignMapper::entityToCampaignListVm);
     }
 
     @Override

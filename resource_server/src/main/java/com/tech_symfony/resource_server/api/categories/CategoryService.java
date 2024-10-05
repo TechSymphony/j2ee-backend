@@ -7,6 +7,9 @@ import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryPostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +17,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface CategoryService {
-    List<CategoryListVm> findAll();
+    Page<CategoryListVm> findAll(Integer page,
+                                 Integer limit,
+                                 String sortBy);
 
     CategoryDetailVm findById(Integer id);
 
@@ -33,10 +38,12 @@ class DefaultCategoryService implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public List<CategoryListVm> findAll() {
-        return categoryRepository.findAll().stream()
-                .map(categoryMapper::entityToCategoryListVm)
-                .collect(Collectors.toList());
+    public Page<CategoryListVm> findAll(Integer page,
+                                        Integer limit,
+                                        String sortBy) {
+        Pageable paging = PageRequest.of(page, limit);
+        return categoryRepository.findAll(paging)
+                .map(categoryMapper::entityToCategoryListVm);
     }
 
     @Override
