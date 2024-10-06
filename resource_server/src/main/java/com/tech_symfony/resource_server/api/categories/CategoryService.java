@@ -10,16 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public interface CategoryService {
-    Page<CategoryListVm> findAll(Integer page,
-                                 Integer limit,
-                                 String sortBy);
+    Page<CategoryListVm> findAll(Integer page, Integer limit, String sortBy);
 
     CategoryDetailVm findById(Integer id);
 
@@ -38,10 +34,9 @@ class DefaultCategoryService implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public Page<CategoryListVm> findAll(Integer page,
-                                        Integer limit,
-                                        String sortBy) {
-        Pageable paging = PageRequest.of(page, limit);
+    public Page<CategoryListVm> findAll(Integer page, Integer limit, String sortBy) {
+        Pageable paging = PageRequest.of(page, limit, Sort.by(sortBy));
+
         return categoryRepository.findAll(paging)
                 .map(categoryMapper::entityToCategoryListVm);
     }
