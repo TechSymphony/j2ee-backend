@@ -22,11 +22,6 @@ public class Beneficiary extends BaseEntity {
     private User user;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "campaign_id", nullable = false)
-    private Campaign campaign;
-
-    @NotNull
     @Column(name = "situation_detail", nullable = false, length = Integer.MAX_VALUE)
     private String situationDetail;
 
