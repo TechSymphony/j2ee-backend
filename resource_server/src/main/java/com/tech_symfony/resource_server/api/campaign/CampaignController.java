@@ -5,7 +5,6 @@ import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +18,8 @@ public class CampaignController {
     private final CampaignService campaignService;
 
     @GetMapping
-    public Page<CampaignListVm> getAllCampaigns(@RequestParam(defaultValue = "0") Integer page,
-                                                @RequestParam(defaultValue = "10") Integer limit,
-                                                @RequestParam(defaultValue = "id") String sortBy) {
-        return campaignService.findAll(page,limit,sortBy);
+    public List<CampaignListVm> getAllCampaigns() {
+        return campaignService.findAll();
     }
 
     @GetMapping("/{id}")
