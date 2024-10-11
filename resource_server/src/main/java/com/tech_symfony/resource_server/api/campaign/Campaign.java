@@ -1,14 +1,21 @@
 package com.tech_symfony.resource_server.api.campaign;
 
 import com.tech_symfony.resource_server.api.campaign.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.role.Role;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
+import com.tech_symfony.resource_server.api.donation.Donation;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.mapping.List;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "campaigns")
@@ -38,6 +45,9 @@ public class Campaign extends NamedEntity {
 
 	@Column(name = "is_approved", columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private boolean isApproved = false;
+
+	@OneToMany(mappedBy = "campaign")
+	private Set<Donation> donations = new LinkedHashSet<>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "beneficiary_id")

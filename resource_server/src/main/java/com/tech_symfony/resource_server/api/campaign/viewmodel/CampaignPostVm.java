@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.campaign.viewmodel;
 
 import com.tech_symfony.resource_server.api.campaign.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.role.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -33,9 +34,10 @@ public record CampaignPostVm(
         @NotNull(message = "End date cannot be null")
         LocalDate endDate,
 
-        @NotNull(message = "Beneficiaries cannot be null")
-        @Size(min = 1, message = "There must be at least one beneficiary")
-        Set<Beneficiary> beneficiaries) {
+        @NotNull(message = "Beneficiary cannot be null")
+        Beneficiary beneficiary)
+
+{
 }
 
   
