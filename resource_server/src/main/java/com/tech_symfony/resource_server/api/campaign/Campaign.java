@@ -1,6 +1,6 @@
 package com.tech_symfony.resource_server.api.campaign;
 
-import com.tech_symfony.resource_server.api.campaign.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
 import com.tech_symfony.resource_server.api.role.Role;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
 import com.tech_symfony.resource_server.api.donation.Donation;

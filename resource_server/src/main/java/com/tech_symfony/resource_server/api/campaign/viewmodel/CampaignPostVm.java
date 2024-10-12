@@ -1,6 +1,6 @@
 package com.tech_symfony.resource_server.api.campaign.viewmodel;
 
-import com.tech_symfony.resource_server.api.campaign.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
 import com.tech_symfony.resource_server.api.role.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
