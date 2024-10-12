@@ -5,17 +5,27 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.tech_symfony.auth_server.model.MyUserDetails;
+import com.tech_symfony.auth_server.model.User;
+import com.tech_symfony.auth_server.model.role.Role;
+import com.tech_symfony.auth_server.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -44,6 +54,7 @@ import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
 	@Value("${BASE_URL:}")
@@ -121,16 +132,21 @@ public class SecurityConfig {
 		return source;
 	}
 
-	@Bean
-	public UserDetailsService userDetailsService() {
-		UserDetails userDetails = User.withDefaultPasswordEncoder()
-				.username("user")
-				.password("password")
-				.roles("USER")
-				.build();
-
-		return new InMemoryUserDetailsManager(userDetails);
-	}
+//	@Bean
+//	public UserDetailsService userDetailsService(UserDetailsServiceImpl userDetailsService) {
+////		Role role= new Role();
+////		role.setName("USER");
+////		MyUserDetails userDetails = new MyUserDetails(
+////				User
+////						.builder()
+////						.email("user")
+////						.password(passwordEncoder().encode("password"))
+////						.role(role)
+////						.build()
+////		);
+//
+//		return userDetailsService;
+//	}
 
 	@Bean
 	public RegisteredClientRepository registeredClientRepository() {
@@ -186,4 +202,17 @@ public class SecurityConfig {
 		return AuthorizationServerSettings.builder().build();
 	}
 
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsServiceImpl userDetailsService) throws Exception {
+		AuthenticationManagerBuilder authManagerBuilder =  http.getSharedObject(AuthenticationManagerBuilder.class);
+		authManagerBuilder
+				.userDetailsService(userDetailsService)
+				.passwordEncoder(passwordEncoder());
+		return authManagerBuilder.build();
+	}
 }
