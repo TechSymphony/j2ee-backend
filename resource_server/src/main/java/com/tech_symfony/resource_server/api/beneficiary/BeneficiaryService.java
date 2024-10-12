@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.api.user.User;
@@ -10,8 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public interface BeneficiaryService {
+
+    List<BeneficiaryListVm> findAll();
 
     BeneficiaryDetailVm findById(Integer id);
 
@@ -29,6 +34,13 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     private final BeneficiaryMapper beneficiaryMapper;
     private final BeneficiaryRepository beneficiaryRepository;
     private final AuthService authService;
+
+    @Override
+    public List<BeneficiaryListVm> findAll() {
+        return beneficiaryRepository.findAll().stream()
+                .map(beneficiaryMapper::entityToBeneficiaryListVm)
+                .collect(Collectors.toList());
+    }
 
     public BeneficiaryDetailVm findById(Integer id) {
         return beneficiaryRepository.findById(id)
