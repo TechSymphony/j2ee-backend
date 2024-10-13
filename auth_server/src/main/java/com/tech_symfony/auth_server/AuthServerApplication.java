@@ -12,9 +12,9 @@ public class AuthServerApplication {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		//default password
 
-		String encodedPassword = encoder.encode("123");
+		String encodedPassword = encoder.encode("password");
 
-		System.out.println(encodedPassword + " " + encoder.matches("123", encodedPassword));
+		System.out.println(encodedPassword + " " + encoder.matches("password", encodedPassword));
 	}
 
 }

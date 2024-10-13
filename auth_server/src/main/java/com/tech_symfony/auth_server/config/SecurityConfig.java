@@ -132,22 +132,6 @@ public class SecurityConfig {
 		return source;
 	}
 
-//	@Bean
-//	public UserDetailsService userDetailsService(UserDetailsServiceImpl userDetailsService) {
-////		Role role= new Role();
-////		role.setName("USER");
-////		MyUserDetails userDetails = new MyUserDetails(
-////				User
-////						.builder()
-////						.email("user")
-////						.password(passwordEncoder().encode("password"))
-////						.role(role)
-////						.build()
-////		);
-//
-//		return userDetailsService;
-//	}
-
 	@Bean
 	public RegisteredClientRepository registeredClientRepository() {
 		RegisteredClient publicClient = RegisteredClient.withId(UUID.randomUUID().toString())

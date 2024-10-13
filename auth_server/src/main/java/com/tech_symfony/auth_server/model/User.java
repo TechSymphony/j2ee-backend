@@ -28,7 +28,7 @@ public class User {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Size(max = 50)
@@ -48,8 +48,17 @@ public class User {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @ColumnDefault("true")
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
 
 }

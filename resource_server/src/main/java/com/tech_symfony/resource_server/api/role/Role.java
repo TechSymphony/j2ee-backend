@@ -20,7 +20,7 @@ public class Role extends NamedEntity {
 	private String description = "";
 
 	@ManyToMany
-	@JoinTable(name = "role_permissions",
+	@JoinTable(name = "role_permission",
 			joinColumns = @JoinColumn(name = "role_id"),
 			inverseJoinColumns = @JoinColumn(name = "permission_id"))
 	private Set<Permission> permissions = new LinkedHashSet<>();

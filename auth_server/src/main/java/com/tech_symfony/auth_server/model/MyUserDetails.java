@@ -20,9 +20,11 @@ public class MyUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Role role = user.getRole();
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        Set<Permission> permissions= role.getPermissions();
-        for (Permission permission : permissions) {
-            authorities.add(new SimpleGrantedAuthority(permission.getName()));
+        if(role!=null){
+            Set<Permission> permissions= role.getPermissions();
+            for (Permission permission : permissions) {
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
+            }
         }
 
         return authorities;
