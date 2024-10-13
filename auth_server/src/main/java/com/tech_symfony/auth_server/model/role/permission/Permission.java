@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 public class Permission extends NamedEntity {
 
-
-	private String decription;
+	@Column(name = "description", length = Integer.MAX_VALUE)
+	private String description;
 
 }

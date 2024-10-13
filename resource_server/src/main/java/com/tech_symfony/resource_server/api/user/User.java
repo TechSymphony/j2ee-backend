@@ -29,7 +29,7 @@ public class User extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Size(max = 50)
@@ -54,5 +54,14 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @ColumnDefault("true")
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
 
 }

@@ -21,7 +21,7 @@ public class AuthService {
     public User getCurrentUserAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        return userRepository.findByEmail(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException(MessageCode.FORBIDDEN));
     }
 }

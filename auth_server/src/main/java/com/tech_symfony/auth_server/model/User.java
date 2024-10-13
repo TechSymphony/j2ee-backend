@@ -4,8 +4,7 @@ import com.tech_symfony.auth_server.model.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import java.time.Instant;
 
@@ -13,7 +12,14 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
     @Size(max = 255)
     @NotNull
@@ -22,7 +28,7 @@ public class User extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Size(max = 50)
@@ -42,8 +48,17 @@ public class User extends BaseEntity {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @ColumnDefault("true")
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
 
 }
