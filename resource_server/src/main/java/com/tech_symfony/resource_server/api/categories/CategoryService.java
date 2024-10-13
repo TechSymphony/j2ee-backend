@@ -3,6 +3,7 @@ package com.tech_symfony.resource_server.api.categories;
 //import com.tech_symfony.resource_server.api.role.permission.PermissionRepository;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryDetailVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryListVm;
+import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryMenuVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryPostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -14,8 +15,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public interface CategoryService {
     Page<CategoryListVm> findAll(Integer page, Integer limit, String sortBy);
+
+    List<CategoryMenuVm> getMenus();
+
+    List<CategoryListVm> getRootMenus();
 
     CategoryDetailVm findById(Integer id);
 
@@ -39,6 +47,23 @@ class DefaultCategoryService implements CategoryService {
 
         return categoryRepository.findAll(paging)
                 .map(categoryMapper::entityToCategoryListVm);
+    }
+
+    @Override
+    public List<CategoryMenuVm> getMenus() {
+
+        return categoryRepository.findAllRootsByParentIsNull()
+                .stream()
+                .map(categoryMapper::entityToCategoryMenuVm)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryListVm> getRootMenus() {
+        return categoryRepository.findAllRootsByParentIsNull()
+                .stream()
+                .map(categoryMapper::entityToCategoryListVm)
+                .collect(Collectors.toList());
     }
 
     @Override
