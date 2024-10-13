@@ -46,8 +46,8 @@ public class Campaign extends NamedEntity {
 	@Column(name = "is_approved", columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private boolean isApproved = false;
 
-	@OneToMany(mappedBy = "campaign")
-	private Set<Donation> donations = new LinkedHashSet<>();
+//	@OneToMany(mappedBy = "campaign")
+//	private Set<Donation> donations = new LinkedHashSet<>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "beneficiary_id")
