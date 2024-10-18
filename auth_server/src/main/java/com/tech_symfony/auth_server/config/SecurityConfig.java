@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
@@ -30,11 +31,14 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationContext;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -48,6 +52,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Configuration
 @EnableWebSecurity
@@ -71,8 +76,18 @@ public class SecurityConfig {
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
 			throws Exception {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+		Function<OidcUserInfoAuthenticationContext, OidcUserInfo> userInfoMapper = (context) -> {
+			OidcUserInfoAuthenticationToken authentication = context.getAuthentication();
+			JwtAuthenticationToken principal = (JwtAuthenticationToken) authentication.getPrincipal();
+
+			return new OidcUserInfo(principal.getToken().getClaims());
+		};
 		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-				.oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
+				.oidc((oidc) -> oidc
+						.userInfoEndpoint((userInfo) -> userInfo
+								.userInfoMapper(userInfoMapper)
+						)
+				);	// Enable OpenID Connect 1.0
 		http
 				// Redirect to the login page when not authenticated from the
 				// authorization endpoint

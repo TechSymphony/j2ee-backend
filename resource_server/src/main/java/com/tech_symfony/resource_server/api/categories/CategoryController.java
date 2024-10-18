@@ -5,8 +5,10 @@ import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryListVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,17 +33,20 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = "menus")
     public CategoryDetailVm createCategory(@Valid @RequestBody CategoryPostVm campaign) {
         return categoryService.save(campaign);
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "menus")
     public CategoryDetailVm updateCategory(@PathVariable Integer id, @Valid @RequestBody CategoryPostVm campaign) {
         return categoryService.update(id, campaign);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(value = "menus")
     public void deleteCategory(@PathVariable Integer id) {
         categoryService.delete(id);
     }
