@@ -14,6 +14,9 @@ import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface UserService {
-    List<UserListVm> findAll();
+    List<UserListVm> findAll(Integer page, Integer limit, String sortBy);
 
     UserDetailVm findById(Integer id);
 
@@ -41,8 +44,9 @@ class DefaultUserService implements UserService {
 
 
     @Override
-    public List<UserListVm> findAll() {
-        return userRepository.findAll().stream()
+    public List<UserListVm> findAll(Integer page, Integer limit, String sortBy) {
+        Pageable paging = PageRequest.of(page, limit, Sort.by(sortBy));
+        return userRepository.findAll(paging).stream()
                 .map(userMapper::enityToUserListVm)
                 .collect(Collectors.toList());
     }

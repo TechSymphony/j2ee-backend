@@ -22,7 +22,10 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserListVm> getAllUsers() { return userService.findAll();}
+    public List<UserListVm> getAllUsers(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit,
+            @RequestParam(defaultValue = "id") String sortBy) { return userService.findAll(page, limit, sortBy);}
 
     @GetMapping("/{id}")
     public UserDetailVm getUserById(@PathVariable Integer id) { return userService.findById(id);}
