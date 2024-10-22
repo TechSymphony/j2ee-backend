@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.campaign.viewmodel;
 
 import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.campaign.CampaignsStatusEnum;
 import com.tech_symfony.resource_server.api.role.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -35,8 +36,10 @@ public record CampaignPostVm(
         LocalDate endDate,
 
         @NotNull(message = "Beneficiary cannot be null")
-        Beneficiary beneficiary)
+        Beneficiary beneficiary,
 
+        @NotNull(message = "Status cannot be null")
+        CampaignsStatusEnum status)
 {
 }
 
