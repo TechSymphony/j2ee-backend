@@ -11,8 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+public interface SpecificationBuilderPagination<T> {
+    Specification<T> buildSpecificationFromParams(Map<String, String> params);
+}
+
 @Component
-public class SpecificationBuilderPagination<T> {
+class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPagination<T> {
 
     // Fields that should not be part of the filtering
     private static final List<String> EXCLUDED_FILTERS = List.of("page", "limit", "sortBy");

@@ -36,12 +36,10 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     private final BeneficiaryRepository beneficiaryRepository;
     private final AuthService authService;
     private final SpecificationBuilderPagination<Beneficiary> specificationBuilder;
-//    private final PaginationCommand<Beneficiary, BeneficiaryListVm> paginationCommand;
+    private final PaginationCommand<Beneficiary, BeneficiaryListVm> paginationCommand;
 
     public Page<BeneficiaryListVm> findAll(Map<String, String> params) {
-//        return paginationCommand.execute(params);
-        return new GenericPaginationCommand<>(beneficiaryRepository, beneficiaryMapper, specificationBuilder)
-                .execute(params);
+        return paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder);
     }
 
     public BeneficiaryDetailVm findById(Integer id) {

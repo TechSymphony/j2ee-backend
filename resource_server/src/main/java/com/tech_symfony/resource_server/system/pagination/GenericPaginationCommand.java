@@ -7,22 +7,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
+@Component
 public class GenericPaginationCommand<T, VM, MP extends GenericMapperPagination<T, VM>> implements PaginationCommand<T, VM> {
-
-    private final JpaSpecificationExecutor<T> repository;
-    private final MP mapper; // MapStruct mapper
-    private final SpecificationBuilderPagination<T> specificationBuilder;
 
     private boolean isValidSortDirection(String sortDirection) {
         return "asc".equalsIgnoreCase(sortDirection) || "desc".equalsIgnoreCase(sortDirection);
     }
 
     @Override
-    public Page<VM> execute(Map<String, String> allParams) {
+    public Page<VM> execute(Map<String, String> allParams, JpaSpecificationExecutor repository, GenericMapperPagination mapperPagination, SpecificationBuilderPagination specificationBuilder) {
         // Extract pagination and sorting parameters
         Integer page = extractInteger(allParams, "page", 0);
         Integer limit = extractInteger(allParams, "limit", 10);
@@ -46,7 +44,7 @@ public class GenericPaginationCommand<T, VM, MP extends GenericMapperPagination<
 
         // Fetch results with dynamic filters and pagination
         return repository.findAll(spec, paging)
-                .map(mapper::entityToViewModelPagination);
+                .map(mapperPagination::entityToViewModelPagination);
     }
 
     private Integer extractInteger(Map<String, String> params, String key, Integer defaultValue) {
