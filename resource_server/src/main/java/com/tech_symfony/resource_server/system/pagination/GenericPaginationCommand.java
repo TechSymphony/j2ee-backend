@@ -17,6 +17,9 @@ public class GenericPaginationCommand<T, VM, MP extends GenericMapperPagination<
     private final MP mapper; // MapStruct mapper
     private final SpecificationBuilderPagination<T> specificationBuilder;
 
+    private boolean isValidSortDirection(String sortDirection) {
+        return "asc".equalsIgnoreCase(sortDirection) || "desc".equalsIgnoreCase(sortDirection);
+    }
 
     @Override
     public Page<VM> execute(Map<String, String> allParams) {
@@ -24,13 +27,19 @@ public class GenericPaginationCommand<T, VM, MP extends GenericMapperPagination<
         Integer page = extractInteger(allParams, "page", 0);
         Integer limit = extractInteger(allParams, "limit", 10);
         String sortBy = allParams.getOrDefault("sortBy", "id");
+        String sortDirection = allParams.getOrDefault("sortDirection", "desc");
 
-        Pageable paging = PageRequest.of(page, limit, Sort.by(Sort.Order.desc(sortBy)));
+        if (!isValidSortDirection(sortDirection)) {
+            sortDirection = "desc";
+        }
+
+        Pageable paging = PageRequest.of(page, limit, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
 
         // Remove pagination and sorting params from allParams, leaving only filters
         allParams.remove("page");
         allParams.remove("limit");
         allParams.remove("sortBy");
+        allParams.remove("sortDirection");
 
         // Build dynamic specification for filtering
         Specification<T> spec = specificationBuilder.buildSpecificationFromParams(allParams);
