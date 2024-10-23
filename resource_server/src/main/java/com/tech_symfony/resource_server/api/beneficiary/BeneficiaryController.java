@@ -5,11 +5,11 @@ import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryLis
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +19,8 @@ public class BeneficiaryController {
     private final BeneficiaryService beneficiaryService;
 
     @GetMapping
-    public List<BeneficiaryListVm> getAllBeneficiaries() {
-        return beneficiaryService.findAll();
+    public Page<BeneficiaryListVm> getAllBeneficiaries(@RequestParam Map<String, String> allParams) {
+        return beneficiaryService.findAll(allParams);
     }
 
     @GetMapping("/{id}")
