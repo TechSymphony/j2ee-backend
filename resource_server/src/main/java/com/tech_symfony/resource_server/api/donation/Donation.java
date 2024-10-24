@@ -30,6 +30,9 @@ public class Donation extends BaseEntity {
     @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
 
+    @Column(name = "transaction_id")
+    private String transactionId;
+
     @NotNull
     @Column(name = "amount_base", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountBase;
@@ -38,9 +41,14 @@ public class Donation extends BaseEntity {
     @Column(name = "amount_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountTotal;
 
+    @NotNull
+    @Column(name = "message", nullable = false, length = Integer.MAX_VALUE)
+    private String message;
+
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "donation_date")
     private Instant donationDate;
+
 
     @OneToMany(mappedBy = "donation")
     private Set<RecurringDonation> recurringDonations = new LinkedHashSet<>();
@@ -49,5 +57,12 @@ public class Donation extends BaseEntity {
     @NotNull
     @Column(name = "frequency")
     private DonationsFrequencyEnum frequency = DonationsFrequencyEnum.ONCE;
+
+    @NotNull(message = "Status must not be null")
+    @Enumerated(EnumType.ORDINAL)
+    private DonationStatus status = DonationStatus.IN_PROGRESS;
+
+    @Transient
+    String vnpayUrl;
 
 }
