@@ -1,6 +1,5 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
-import com.tech_symfony.resource_server.api.campaign.Campaign;
 import com.tech_symfony.resource_server.api.user.User;
 import com.tech_symfony.resource_server.system.model.BaseEntity;
 import jakarta.persistence.*;
@@ -29,8 +28,8 @@ public class Beneficiary extends BaseEntity {
     @Column(name = "support_received", nullable = false, precision = 10, scale = 2)
     private BigDecimal supportReceived;
 
-    @ColumnDefault("false")
     @Column(name = "verification_status")
-    private Boolean verificationStatus;
+    @Enumerated(EnumType.ORDINAL)
+    private BeneficiaryStatusEnum verificationStatus = BeneficiaryStatusEnum.WAITING;
 
 }

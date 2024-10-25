@@ -1,16 +1,37 @@
 package com.tech_symfony.resource_server.system.pagination;
 
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Default implementation of the SpecificationBuilderPagination interface.
+ *
+ * @Example {
+ * "id": 3,
+ * "user": {
+ * "id": 5,
+ * "fullName": "User",
+ * "email": "user@example.com",
+ * "phone": "987654321",
+ * "createdAt": "2024-09-19T15:14:19.848798Z",
+ * "updatedAt": "2024-09-19T15:14:19.848798Z",
+ * "role": null,
+ * "enabled": true,
+ * "username": "user"
+ * }
+ * }
+ * filter using the name key value
+ * ?id=3&user.id=5 : work despite the nested object
+ * ?id=1,2,3,4: work by using sql id IN(1,2,3,4)
+ */
 public interface SpecificationBuilderPagination<T> {
     Specification<T> buildSpecificationFromParams(Map<String, String> params);
 }
@@ -29,15 +50,51 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
                 String field = entry.getKey();
                 String value = entry.getValue();
 
-                if (value == null || value.trim().isEmpty() || EXCLUDED_FILTERS.contains(field) || !isFieldValid(root, field)) {
+                if (value == null || value.trim().isEmpty() || EXCLUDED_FILTERS.contains(field)) {
                     continue;
                 }
                 value = value.trim();
 
-                if (isStringField(root, field)) {
-                    predicates.add(criteriaBuilder.like(root.get(field), "%" + value + "%")); // Partial match for strings
+                // Handle dynamic fields, e.g., "user.id", "user.fullName"
+                Path<?> path = getPath(root, field);
+                Class<?> fieldType = path.getJavaType();
+
+                // Check if the value is a comma-separated list
+                if (value.contains(",")) {
+                    List<String> valuesList = Arrays.asList(value.split(","));
+                    if (path != null) {
+                        // Create IN predicate
+                        if (fieldType.isEnum()) {
+                            List<Object> enumValues = new ArrayList<>();
+                            for (String val : valuesList) {
+                                Object enumValue = getEnumValue(fieldType, val);
+                                if (enumValue != null) {
+                                    enumValues.add(enumValue);
+                                }
+                            }
+                            if (!enumValues.isEmpty()) {
+                                predicates.add(path.in(enumValues));
+                            }
+                        } else predicates.add(path.in(valuesList));
+                    }
+                    continue;
+                }
+
+
+                if (path == null) {
+                    continue; // If the path is invalid, skip this entry
+                }
+                if (isStringField(path)) {
+                    predicates.add(criteriaBuilder.like((Path<String>) path, "%" + value + "%")); // Partial match for strings
+                } else if (fieldType.isEnum()) {
+                    // Handle enums
+                    // name, string and integer case , pass 3 case.
+                    Object enumValue = getEnumValue(fieldType, value);
+                    if (enumValue != null) {
+                        predicates.add(criteriaBuilder.equal(path, enumValue)); // Exact match for enums
+                    }
                 } else {
-                    predicates.add(criteriaBuilder.equal(root.get(field), value)); // Exact match for other types
+                    predicates.add(criteriaBuilder.equal(path, value)); // Exact match for other types
                 }
             }
 
@@ -45,20 +102,56 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
         };
     }
 
-    private boolean isFieldValid(Root<T> root, String field) {
+    private Path<?> getPath(Root<T> root, String field) {
+        String[] fieldParts = field.split("\\.");
+        Path<?> path = root;
+
+        for (String part : fieldParts) {
+            try {
+                path = path.get(part);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        return path; // Return the resolved path
+    }
+
+    private boolean isStringField(Path<?> path) {
+        return String.class.equals(path.getJavaType());
+    }
+
+
+    private Object getEnumValue(Class<?> enumClass, String value) {
         try {
-            root.get(field);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
+            // Check if value can be parsed as an integer
+            int ordinal = Integer.parseInt(value);
+            // Return the enum based on ordinal
+            return getEnumByOrdinal(enumClass, ordinal);
+        } catch (NumberFormatException e) {
+            // If it's not an integer, try to get the enum by name
+            return getEnumByName(enumClass, value);
         }
     }
 
-    private boolean isStringField(Root<T> root, String field) {
-        try {
-            return String.class.equals(root.get(field).getJavaType());
-        } catch (IllegalArgumentException e) {
-            return false;
+    private Object getEnumByOrdinal(Class<?> enumClass, int ordinal) {
+        if (enumClass.isEnum()) {
+            Object[] enumConstants = enumClass.getEnumConstants();
+            if (ordinal >= 0 && ordinal < enumConstants.length) {
+                return enumConstants[ordinal]; // Return the enum by its ordinal
+            }
         }
+        return null; // Invalid ordinal
+    }
+
+    private Object getEnumByName(Class<?> enumClass, String name) {
+        if (enumClass.isEnum()) {
+            try {
+                return Enum.valueOf((Class<Enum>) enumClass, name.toUpperCase()); // Use uppercase for case-insensitive match
+            } catch (IllegalArgumentException e) {
+                return null; // Return null if no match found
+            }
+        }
+        return null; // Not an enum class
     }
 }
