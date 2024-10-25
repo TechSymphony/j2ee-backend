@@ -4,19 +4,20 @@ import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDet
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
 import com.tech_symfony.resource_server.api.user.AuthService;
-import com.tech_symfony.resource_server.api.user.User;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.pagination.GenericPaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public interface BeneficiaryService {
 
-    List<BeneficiaryListVm> findAll();
+    Page<BeneficiaryListVm> findAll(Map<String, String> params);
 
     BeneficiaryDetailVm findById(Integer id);
 
@@ -34,12 +35,11 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     private final BeneficiaryMapper beneficiaryMapper;
     private final BeneficiaryRepository beneficiaryRepository;
     private final AuthService authService;
+    private final SpecificationBuilderPagination<Beneficiary> specificationBuilder;
+    private final PaginationCommand<Beneficiary, BeneficiaryListVm> paginationCommand;
 
-    @Override
-    public List<BeneficiaryListVm> findAll() {
-        return beneficiaryRepository.findAll().stream()
-                .map(beneficiaryMapper::entityToBeneficiaryListVm)
-                .collect(Collectors.toList());
+    public Page<BeneficiaryListVm> findAll(Map<String, String> params) {
+        return paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder);
     }
 
     public BeneficiaryDetailVm findById(Integer id) {
