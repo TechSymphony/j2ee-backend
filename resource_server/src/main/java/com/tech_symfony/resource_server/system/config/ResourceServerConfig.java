@@ -2,6 +2,7 @@ package com.tech_symfony.resource_server.system.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,9 @@ public class ResourceServerConfig {
                         .requestMatchers("/", "auth/**").permitAll()
                         //swagger docs
                         .requestMatchers("/swagger-ui/**", "/v3/**", "/swagger-ui.html", "/openapi-3.0.yml", "/image/**").permitAll()
+                        // payment
+                        .requestMatchers("/public/**").permitAll()
+                        // Allow POST requests to /api/** endpoints
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

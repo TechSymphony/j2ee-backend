@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,15 +21,17 @@ import java.util.Set;
 @Table(name = "donations")
 public class Donation extends BaseEntity {
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "donor_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "donor_id")
     private User donor;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
+
+    @Column(name = "transaction_id")
+    private String transactionId;
 
     @NotNull
     @Column(name = "amount_base", nullable = false, precision = 10, scale = 2)
@@ -38,9 +41,18 @@ public class Donation extends BaseEntity {
     @Column(name = "amount_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountTotal;
 
+    @NotNull
+    @Column(name = "message", nullable = false, length = Integer.MAX_VALUE)
+    private String message;
+
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "donation_date")
-    private Instant donationDate;
+    private Instant donationDate = Instant.now();
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @CreationTimestamp
+    @Column(name = "create_time")
+    private Instant createTime;
 
     @OneToMany(mappedBy = "donation")
     private Set<RecurringDonation> recurringDonations = new LinkedHashSet<>();
@@ -49,5 +61,12 @@ public class Donation extends BaseEntity {
     @NotNull
     @Column(name = "frequency")
     private DonationsFrequencyEnum frequency = DonationsFrequencyEnum.ONCE;
+
+    @NotNull(message = "Status must not be null")
+    @Enumerated(EnumType.ORDINAL)
+    private DonationStatus status = DonationStatus.IN_PROGRESS;
+
+    @Transient
+    String vnpayUrl;
 
 }
