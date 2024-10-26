@@ -13,7 +13,13 @@ import com.tech_symfony.resource_server.api.user.viewmodel.UserPostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.mail.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface UserService {
-    List<UserListVm> findAll();
+    Page<UserListVm> findAll(Integer page, Integer limit, String sortBy);
 
     UserDetailVm findById(Integer id);
 
@@ -30,6 +36,10 @@ public interface UserService {
     UserDetailVm update(Integer id, UserPostVm user);
 
     Boolean delete(Integer id);
+
+    Boolean resetPassword(String username);
+
+    Boolean resetPasswordAdmin(Integer id);
 }
 
 @Service
@@ -38,13 +48,14 @@ class DefaultUserService implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
-    public List<UserListVm> findAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::enityToUserListVm)
-                .collect(Collectors.toList());
+    public Page<UserListVm> findAll(Integer page, Integer limit, String sortBy) {
+        Pageable paging = PageRequest.of(page, limit, Sort.by(sortBy));
+        return userRepository.findAll(paging)
+                .map(userMapper::enityToUserListVm);
     }
 
     @Override
@@ -59,8 +70,11 @@ class DefaultUserService implements UserService {
     @Override
     public UserDetailVm save(UserPostVm user) {
         User newUser = userMapper.userPostVmToUser(user);
-        newUser.setPassword("123123");
+        newUser.setPassword(passwordEncoder.encode("password"));
         User savedUser = userRepository.save((newUser));
+
+        // TODO: send mail
+
         return userMapper.enityToUserDetailVm(savedUser);
     }
 
@@ -83,5 +97,25 @@ class DefaultUserService implements UserService {
 
         userRepository.delete(user);
         return !userRepository.existsById(id);
+    }
+
+    @Override
+    public Boolean resetPassword(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, username));
+        user.setPassword(passwordEncoder.encode("password"));
+        userRepository.save(user);
+        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
+        return true;
+    }
+
+    @Override
+    public Boolean resetPasswordAdmin(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+        user.setPassword(passwordEncoder.encode("password"));
+        userRepository.save(user);
+        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
+        return true;
     }
 }
