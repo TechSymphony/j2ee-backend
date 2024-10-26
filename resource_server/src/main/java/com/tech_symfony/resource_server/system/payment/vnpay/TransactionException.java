@@ -1,4 +1,4 @@
-package com.tech_symfony.resource_server.api.donation.vnpay;
+package com.tech_symfony.resource_server.system.payment.vnpay;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

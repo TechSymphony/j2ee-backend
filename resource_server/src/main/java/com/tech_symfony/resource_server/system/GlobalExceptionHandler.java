@@ -1,9 +1,9 @@
 package com.tech_symfony.resource_server.system;
 
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
-import com.tech_symfony.resource_server.commonlibrary.exception.ErrorFormInfo;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.commonlibrary.viewmodel.error.ErrorVm;
+import com.tech_symfony.resource_server.system.payment.vnpay.TransactionException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,15 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -29,6 +24,19 @@ public class GlobalExceptionHandler {
 
 
     private static final String ERROR_LOG_FORMAT = "Error: URI: {}, ErrorCode: {}, Message: {}";
+
+    @ExceptionHandler(TransactionException.class)
+    public ResponseEntity<ErrorVm> handleTransactionException(TransactionException ex, WebRequest request) {
+        HttpStatus status = BAD_REQUEST; // You can customize the status based on your logic
+        String errorMessage = ex.getError();
+        String statusCode = String.valueOf(ex.getStatus());
+        List<String> messages = ex.getMessages();
+
+        // Create the ErrorVm object
+        ErrorVm errorResponse = new ErrorVm(errorMessage, statusCode, messages.toString());
+
+        return new ResponseEntity<>(errorResponse, status);
+    }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {
@@ -46,7 +54,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
-        HttpStatus status = BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()

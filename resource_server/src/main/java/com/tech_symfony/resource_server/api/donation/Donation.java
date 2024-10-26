@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,9 +21,8 @@ import java.util.Set;
 @Table(name = "donations")
 public class Donation extends BaseEntity {
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "donor_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "donor_id")
     private User donor;
 
     @NotNull
@@ -47,8 +47,12 @@ public class Donation extends BaseEntity {
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "donation_date")
-    private Instant donationDate;
+    private Instant donationDate = Instant.now();
 
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @CreationTimestamp
+    @Column(name = "create_time")
+    private Instant createTime;
 
     @OneToMany(mappedBy = "donation")
     private Set<RecurringDonation> recurringDonations = new LinkedHashSet<>();

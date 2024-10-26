@@ -1,6 +1,7 @@
-package com.tech_symfony.resource_server.api.donation.vnpay;
+package com.tech_symfony.resource_server.system.payment.vnpay;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.Mac;
@@ -12,14 +13,27 @@ import java.util.*;
 
 @Configuration
 public class VnpayConfig {
-    public String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public String vnp_ReturnUrl = "http://localhost:8080/bills";
-    public String vnp_TmnCode = "13UW43UM";
-    public String vnp_Version = "2.1.0";
-    public String vnp_Command = "pay";
-    public String secretKey = "J5X96FVQNW7F2RB00CEFLFJYHMZ2B19M";
-    public String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
+    @Value("${vnp_PayUrl:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}")
+    public String vnp_PayUrl;
+
+    @Value("${vnp_TmnCode:D7H7H7J7}")
+    public String vnp_TmnCode;
+
+    @Value("${vnp_Version:2.1.0}")
+    public String vnp_Version;
+
+    @Value("${vnp_Command:pay}")
+    public String vnp_Command;
+
+    @Value("${secretKey:XT1UMKG6FMPBPLPRXJJ6ZOQRHD4DOX20}")
+    public String secretKey;
+
+    @Value("${vnp_ReturnUrl:http://localhost:3000/payment-success}")
+    public String vnp_ReturnFrontendUrl;
+
+    @Value("${vnp_ApiUrl:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}")
+    public String vnp_ApiUrl;
 
     public String Sha256(String message) {
         String digest = null;
