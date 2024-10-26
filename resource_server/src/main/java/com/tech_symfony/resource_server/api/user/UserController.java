@@ -9,6 +9,7 @@ import com.tech_symfony.resource_server.api.user.viewmodel.UserListVm;
 import com.tech_symfony.resource_server.api.user.viewmodel.UserPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserListVm> getAllUsers(
+    public Page<UserListVm> getAllUsers(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(defaultValue = "id") String sortBy) { return userService.findAll(page, limit, sortBy);}
@@ -43,4 +44,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Integer id) {userService.delete(id);}
 
+    @PutMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(@PathVariable String username) {userService.resetPassword(username);}
+
+    @PutMapping("/{id}/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPasswordAdmin(@PathVariable Integer id) {userService.resetPasswordAdmin(id);}
 }

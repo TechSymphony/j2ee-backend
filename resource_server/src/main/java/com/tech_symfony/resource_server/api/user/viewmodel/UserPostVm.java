@@ -20,7 +20,10 @@ public record UserPostVm(
         String phone,
 
         @NotNull(message = "Role cannot be null")
-        Role role
+        Role role,
+
+        @NotEmpty(message = "Username must not be empty")
+        String username
 )
 {
 }
