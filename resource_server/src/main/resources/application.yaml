@@ -3,6 +3,8 @@ server:
   port: ${ENV_PORT}
 
 spring:
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
   mail:
     host: ${SPRING_MAIL_HOST}
     port: ${SPRING_MAIL_PORT}
