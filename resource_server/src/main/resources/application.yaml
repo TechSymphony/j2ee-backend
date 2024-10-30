@@ -1,4 +1,3 @@
-
 server:
   port: ${ENV_PORT}
 
@@ -17,7 +16,7 @@ spring:
           starttls:
             enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
   flyway:
-    baseline-version : 0
+    baseline-version: 0
     baseline-on-migrate: true
     out-of-order: true
   security:
@@ -25,20 +24,20 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_SERVER_URL}
-#      client:
-#        registration:
-#          google:
-#            clientId: ${GOOGLE_CLIENT_ID}
-#            clientSecret: ${GOOGLE_CLIENT_SECRET}
-#            scope:
-#              - email
-#              - profile
-#              - phone
-#            redirect-uri:
-#              - ${BASE_URL}/oauth2/callback/google
-#              - https://oauth.pstmn.io/v1/browser-callback
-#              - https://oauth.pstmn.io/v1/callback
-#              - http://localhost:8080/api/v1/auth/callback
+  #      client:
+  #        registration:
+  #          google:
+  #            clientId: ${GOOGLE_CLIENT_ID}
+  #            clientSecret: ${GOOGLE_CLIENT_SECRET}
+  #            scope:
+  #              - email
+  #              - profile
+  #              - phone
+  #            redirect-uri:
+  #              - ${BASE_URL}/oauth2/callback/google
+  #              - https://oauth.pstmn.io/v1/browser-callback
+  #              - https://oauth.pstmn.io/v1/callback
+  #              - http://localhost:8080/api/v1/auth/callback
   config:
     import: optional:configtree:/run/secrets/ , optional:file:.env[.properties]
   application:
