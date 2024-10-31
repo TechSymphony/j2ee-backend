@@ -153,9 +153,11 @@ public class SecurityConfig {
 				.redirectUri("https://oauth.pstmn.io/v1/browser-callback")
 				.redirectUri("https://oauth.pstmn.io/v1/callback")
 				.redirectUri("http://127.0.0.1:8080/login/oauth2/code/myoauth2")
+				.redirectUri("https://app.apidog.com/oauth2-browser-callback.html")
 				.redirectUri(BASE_URL + "/swagger-ui/oauth2-redirect.html")
 				// for frontend
 				.redirectUri(getFRONTEND_URL()+"/callback")
+				.redirectUri("http://localhost:3000/callback")
 				.postLogoutRedirectUri(getFRONTEND_URL())
 				.scope(OidcScopes.OPENID)
 				.scope(OidcScopes.PROFILE)

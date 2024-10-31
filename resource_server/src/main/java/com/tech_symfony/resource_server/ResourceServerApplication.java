@@ -1,17 +1,19 @@
 package com.tech_symfony.resource_server;
 
-import com.tech_symfony.resource_server.api.donation.DonationClientController;
+import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.TimeZone;
+
 
 @SpringBootApplication
 public class ResourceServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ResourceServerApplication.class, args);
-		System.out.println(linkTo(methodOn(DonationClientController.class).pay(1)).toString());
-	}
+
+    public static void main(String[] args) {
+        SpringApplication.run(ResourceServerApplication.class, args);
+        TimeZone.setDefault(TimeZone.getTimeZone(JacksonConfig.MY_TIME_ZONE));
+    }
+
 }

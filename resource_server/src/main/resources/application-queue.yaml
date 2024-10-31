@@ -1,0 +1,27 @@
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+    template:
+        retry:
+            enabled: true
+            initial-interval: 2s
+rabbitmq:
+  queue:
+    email:
+      name: email_queue
+    payment:
+      name: payment_queue
+  exchange:
+    email:
+      name: email_exchange
+    payment:
+      name: payment_exchange
+  binding:
+    payment:
+      name: payment_routing_key
+    email:
+      name: email_routing_key

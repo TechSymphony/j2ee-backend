@@ -1,6 +1,8 @@
 package com.tech_symfony.resource_server.api.donation;
 
 
+import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.campaign.CampaignRepository;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
@@ -9,18 +11,21 @@ import com.tech_symfony.resource_server.api.user.User;
 import com.tech_symfony.resource_server.api.user.UserRepository;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
 public interface DonationService {
-    List<DonationListVm> findAll();
+    Page<DonationListVm> findAll(Map<String, String> params);
 
     Donation create(DonationPostVm donationPostVm);
 
@@ -42,12 +47,14 @@ class DefaultDonationService implements DonationService {
     private  final UserRepository userRepository;
     private  final PaymentService<Donation, JSONObject> paymentService;
     private final AuthService authService;
+    private final SpecificationBuilderPagination<Donation> specificationBuilder;
+    private final PaginationCommand<Donation, DonationListVm> paginationCommand;
 
     @Override
-    public List<DonationListVm> findAll() {
-        return donationRepository.findAll().stream()
-                .map(donationMapper::entityDonationListVm)
-                .collect(Collectors.toList());
+    public Page<DonationListVm> findAll(Map<String, String> params) {
+
+        return paginationCommand.execute(params, donationRepository, donationMapper, specificationBuilder);
+
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.tech_symfony.resource_server.api;
 
 
+import com.tech_symfony.resource_server.system.mail.EmailDetails;
+import com.tech_symfony.resource_server.system.mail.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
@@ -11,15 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RootController {
 
-	@Operation(
-		summary = "Đường dẫn gốc",
-		description = "Từ đường dẫn này sẽ đi đến những đường dẫn khác dựa theo hành vi người dùng"
-	)
-	@GetMapping
-	public String index() {
-
-
-		return "Welcome to the resource server!";
-	}
+    @Operation(
+            summary = "Đường dẫn gốc",
+            description = "Từ đường dẫn này sẽ đi đến những đường dẫn khác dựa theo hành vi người dùng"
+    )
+    @GetMapping
+    public String index() {
+        return "Welcome to the resource server!";
+    }
 
 }
