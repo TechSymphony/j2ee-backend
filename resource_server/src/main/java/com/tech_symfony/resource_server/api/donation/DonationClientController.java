@@ -7,9 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 @RequiredArgsConstructor
 @RequestMapping("/public/donations")
@@ -42,12 +40,10 @@ public class DonationClientController {
                     "sẽ được nêu rõ. "
     )
     @GetMapping(value = "/{id}/payment")
-    public ModelAndView pay(
+    public void verify(
             @PathVariable int id
     ) {
-        donationService.pay(id);
-
-        return new ModelAndView("redirect:"+vnpayConfig.vnp_ReturnFrontendUrl);
+        donationService.verify(id);
     }
 
 }

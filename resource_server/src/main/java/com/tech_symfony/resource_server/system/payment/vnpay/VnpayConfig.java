@@ -9,6 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Configuration
@@ -34,6 +36,9 @@ public class VnpayConfig {
 
     @Value("${vnp_ApiUrl:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}")
     public String vnp_ApiUrl;
+
+    // 30 minutes
+    public Integer exprationTime = 30 * 60 * 1000;
 
     public String Sha256(String message) {
         String digest = null;
