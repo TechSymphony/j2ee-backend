@@ -11,6 +11,7 @@ import com.tech_symfony.resource_server.api.user.viewmodel.*;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.importing.ImportExcelService;
 import com.tech_symfony.resource_server.system.mail.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +43,10 @@ public interface UserService {
     Boolean resetPasswordAdmin(Integer id);
 
     BasicUserDetailVm getProfileById(Integer id);
+    
     BasicUserDetailVm updateProfile(Integer id, BasicUserPostVm user);
+
+    List<UserListVm> importStudents(MultipartFile file) throws IOException;
 }
 
 @Service
@@ -51,6 +57,7 @@ class DefaultUserService implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final ImportExcelService importExcelService;
 
     @Override
     public Page<UserListVm> findAll(Integer page, Integer limit, String sortBy) {
@@ -138,5 +145,11 @@ class DefaultUserService implements UserService {
     }
 
 
+    public List<UserListVm> importStudents(MultipartFile file) throws IOException {
+        return importExcelService.importStudents(file)
+                .stream()
+                .map(userMapper::enityToUserListVm)
+                .collect(Collectors.toList());
+    }
 }
 

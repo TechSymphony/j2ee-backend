@@ -64,4 +64,6 @@ public class User extends BaseEntity {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
+    @Column(name = "is_student", nullable = false)
+    private boolean isStudent = false;
 }
