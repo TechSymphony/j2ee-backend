@@ -32,13 +32,16 @@ public class EmailService {
 
 	public void sendEmail(String to, String subject, String body) {
 
+		EmailDetails emailDetails = EmailDetails.builder()
+				.to(to)
+				.subject(subject)
+				.body(body)
+				.build();
 		rabbitTemplate.convertAndSend(emailExchange,
 				emailRoutingKey,
-				EmailDetails.builder()
-						.to(to)
-						.subject(subject)
-						.body(body)
-						.build());
+				emailDetails);
+		log.info(emailDetails.toString());
+
 	}
 
 	@RabbitListener(queues = "email_queue")
@@ -50,7 +53,8 @@ public class EmailService {
 			message.setSubject(emailDetails.subject());
 			message.setText(emailDetails.body());
 			mailSender.send(message);
-			log.info("Mail sent successfully");
+
+            log.info("Mail {} sent successfully", emailDetails);
 		}catch (MailException e){
 			log.debug("Sending mail failed due to some error");
 		}
