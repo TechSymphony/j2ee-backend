@@ -51,8 +51,7 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
     }
 
     private Predicate buildPredicate(Root<T> root, CriteriaBuilder criteriaBuilder, String field, String value) {
-        boolean isGt = field.endsWith("_gt"), isLt = field.endsWith("_lt"),
-                isGte = field.endsWith("_gte"), isLte = field.endsWith("_lte");
+        boolean isGt = field.endsWith("_gt"), isLt = field.endsWith("_lt"), isGte = field.endsWith("_gte"), isLte = field.endsWith("_lte");
 
         field = field.replaceAll("(_gte|_lte|_gt|_lt)$", "");
         Path<?> path = getPath(root, field);
@@ -71,8 +70,7 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
         return buildEqualityPredicate(criteriaBuilder, path, value, fieldType);
     }
 
-    private Predicate buildComparisonPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, String value,
-                                               Class<?> fieldType, boolean isGreaterThan, boolean isInclusive) {
+    private Predicate buildComparisonPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, String value, Class<?> fieldType, boolean isGreaterThan, boolean isInclusive) {
         Predicate comparisonPredicate = createComparisonPredicate(criteriaBuilder, path, value, fieldType, isGreaterThan);
         if (comparisonPredicate == null) return null;
 
@@ -96,7 +94,14 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
 
     private Predicate buildEqualityPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, String value, Class<?> fieldType) {
         Object convertedValue = convertToFieldType(value, fieldType);
-        return convertedValue == null ? null : criteriaBuilder.equal(path, convertedValue);
+
+        return convertedValue == null
+                ? null
+                : (isStringField(path) ? criteriaBuilder.like((Path<String>) path, "%" + value + "%") : criteriaBuilder.equal(path, convertedValue));
+    }
+
+    private boolean isStringField(Path<?> path) {
+        return String.class.equals(path.getJavaType());
     }
 
     private Predicate createComparisonPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, String value, Class<?> fieldType, boolean isGreaterThan) {
@@ -105,17 +110,13 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
                 return buildNumberComparisonPredicate(criteriaBuilder, path, value, fieldType, isGreaterThan);
             } else if (LocalDate.class.isAssignableFrom(fieldType)) {
                 LocalDate dateValue = LocalDate.parse(value, JacksonConfig.DATE_FORMATTER);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<LocalDate>) path, dateValue)
-                        : criteriaBuilder.lessThan((Path<LocalDate>) path, dateValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<LocalDate>) path, dateValue) : criteriaBuilder.lessThan((Path<LocalDate>) path, dateValue);
             } else if (Instant.class.isAssignableFrom(fieldType)) {
-                Instant instantValue = LocalDate.parse(value, JacksonConfig.DATE_FORMATTER)
-                        .atStartOfDay(ZoneId.systemDefault()).toInstant();
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Instant>) path, instantValue)
-                        : criteriaBuilder.lessThan((Path<Instant>) path, instantValue);
+                Instant instantValue = LocalDate.parse(value, JacksonConfig.DATE_FORMATTER).atStartOfDay(ZoneId.systemDefault()).toInstant();
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Instant>) path, instantValue) : criteriaBuilder.lessThan((Path<Instant>) path, instantValue);
             } else if (Date.class.isAssignableFrom(fieldType)) {
                 Date dateValue = (Date) JacksonConfig.DATE_FORMATTER.parse(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Date>) path, dateValue)
-                        : criteriaBuilder.lessThan((Path<Date>) path, dateValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Date>) path, dateValue) : criteriaBuilder.lessThan((Path<Date>) path, dateValue);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,24 +128,19 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
         try {
             if (Integer.class.isAssignableFrom(fieldType)) {
                 Integer numberValue = Integer.parseInt(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Integer>) path, numberValue)
-                        : criteriaBuilder.lessThan((Path<Integer>) path, numberValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Integer>) path, numberValue) : criteriaBuilder.lessThan((Path<Integer>) path, numberValue);
             } else if (Long.class.isAssignableFrom(fieldType)) {
                 Long numberValue = Long.parseLong(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Long>) path, numberValue)
-                        : criteriaBuilder.lessThan((Path<Long>) path, numberValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Long>) path, numberValue) : criteriaBuilder.lessThan((Path<Long>) path, numberValue);
             } else if (Double.class.isAssignableFrom(fieldType)) {
                 Double numberValue = Double.parseDouble(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Double>) path, numberValue)
-                        : criteriaBuilder.lessThan((Path<Double>) path, numberValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Double>) path, numberValue) : criteriaBuilder.lessThan((Path<Double>) path, numberValue);
             } else if (BigDecimal.class.isAssignableFrom(fieldType)) {
                 BigDecimal numberValue = new BigDecimal(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<BigDecimal>) path, numberValue)
-                        : criteriaBuilder.lessThan((Path<BigDecimal>) path, numberValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<BigDecimal>) path, numberValue) : criteriaBuilder.lessThan((Path<BigDecimal>) path, numberValue);
             } else if (BigInteger.class.isAssignableFrom(fieldType)) {
                 BigInteger numberValue = new BigInteger(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<BigInteger>) path, numberValue)
-                        : criteriaBuilder.lessThan((Path<BigInteger>) path, numberValue);
+                return isGreaterThan ? criteriaBuilder.greaterThan((Path<BigInteger>) path, numberValue) : criteriaBuilder.lessThan((Path<BigInteger>) path, numberValue);
             }
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -196,6 +192,7 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
         }
         return null;
     }
+
     private Method getStaticValueOfMethod(Class<?> fieldType) {
         try {
             return fieldType.getMethod("valueOf", String.class);
