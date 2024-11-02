@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh Sách Quyên Góp</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        body {
+            font-family: DejaVu Sans;
+        }
+    </style>
+</head>
+<body>
+<h1>Danh sách quyên góp</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Mã người dùng</th>
+        <th>Họ tên</th>
+        <th>Số tiền</th>
+        <th>Ngày</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="donation, iStat : ${list}">
+        <td th:text="${iStat.count}"></td>
+        <td th:text="${donation.donor.id}"></td>
+        <td th:text="${donation.donor.fullName}"></td>
+        <td th:text="${donation.amountTotal}"></td>
+        <td th:text="${#temporals.format(donation.donationDate, 'hh:mm:ss dd-MM-yyyy')}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

@@ -9,6 +9,7 @@ import com.tech_symfony.resource_server.api.user.User;
 import com.tech_symfony.resource_server.api.user.UserRepository;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.export.ExportPdfService;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
@@ -21,14 +22,17 @@ import org.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
@@ -44,6 +48,7 @@ public interface DonationService {
     boolean sendEventVerify(int donationId);
 
     boolean updateDonationHolding(int donationId);
+    FileSystemResource export() throws IOException;
 }
 
 @Service
@@ -68,6 +73,7 @@ class DefaultDonationService implements DonationService {
 
     @Value("${rabbitmq.binding.payment.name}")
     private String paymentRoutingKey;
+    private final ExportPdfService<Donation> exportPdfService;
 
     @Override
     public Page<DonationListVm> findAll(Map<String, String> params) {
@@ -170,4 +176,7 @@ class DefaultDonationService implements DonationService {
         return true;
     }
 
+    public FileSystemResource export() throws IOException {
+        return new FileSystemResource(exportPdfService.from(donationRepository.findAll(), "donations"));
+    }
 }
