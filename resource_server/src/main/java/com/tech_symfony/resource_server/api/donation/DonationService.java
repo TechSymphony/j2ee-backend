@@ -111,25 +111,37 @@ class DefaultDonationService implements DonationService {
         log.info("Donation {} is verifying at {}", donationId, LocalDateTime.now());
 
         Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, donationId));
+                .orElse(null);
+
+        if (donation == null) return null;
+
         try {
-            JSONObject jsonObject = paymentService.verifyPay(donation);
             if (donation.getStatus() == DonationStatus.IN_PROGRESS || donation.getStatus() == DonationStatus.HOLDING) {
+                JSONObject jsonObject = paymentService.verifyPay(donation);
                 donation.setStatus(DonationStatus.COMPLETED);
                 donation.setDonationDate(Instant.now());
                 donation.setTransactionId(jsonObject.getString("vnp_TransactionNo"));
                 donationRepository.save(donation);
             }
-            log.info("Donation verified successfully at {}", donationId, LocalDateTime.now());
+            log.info("Donation {} verified successfully at {}", donationId, LocalDateTime.now());
 
-        }catch (TransactionException e ){
+        } catch (TransactionException e) {
+
             log.debug("Sending verify for donation {} failed due to {}", donationId, e.getMessages());
-            throw e;
+
+            if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
+                donation.setStatus(DonationStatus.HOLDING);
+                donationRepository.save(donation);
+                log.info("Donation {} is now in HOLDING status", donationId);
+            }
+
+            // retry until success
+            Timer timer = new Timer();
+            timer.schedule(new HandleUnusedBillDonationTask(this, donation.getId()), vnpayConfig.exprationTime);
+
         }
 
-
         return donation;
-
     }
 
     @Override

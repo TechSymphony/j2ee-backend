@@ -37,7 +37,9 @@ public class VnpayConfig {
     @Value("${vnp_ApiUrl:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}")
     public String vnp_ApiUrl;
 
-    // 30 minutes
+    /**
+     * 30 minutes
+     */
     public Integer exprationTime = 30 * 60 * 1000;
 
     public String Sha256(String message) {

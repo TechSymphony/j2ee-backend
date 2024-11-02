@@ -12,9 +12,7 @@ public class HandleUnusedBillDonationTask extends TimerTask {
 
     @Override
     public void run() {
-        donationService.updateDonationHolding(donationId);
         donationService.sendEventVerify(donationId);
-
 
         cancel();
     }

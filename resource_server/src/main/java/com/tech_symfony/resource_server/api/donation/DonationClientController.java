@@ -1,6 +1,8 @@
 package com.tech_symfony.resource_server.api.donation;
 
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
+import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
+import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -39,11 +41,14 @@ public class DonationClientController {
                     "để hiển thị với khách hàng, kết quả có thể thành công hoặc thất bại. Khi thất bại, lí do " +
                     "sẽ được nêu rõ. "
     )
-    @GetMapping(value = "/{id}/payment")
+
+    @PutMapping(value = "/{id}/payment")
     public void verify(
             @PathVariable int id
     ) {
-        donationService.verify(id);
+        Donation donation = donationService.verify(id);
+        if(donation == null) throw new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id);
+
     }
 
 }
