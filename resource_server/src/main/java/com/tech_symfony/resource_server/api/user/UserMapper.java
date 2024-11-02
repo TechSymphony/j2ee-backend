@@ -1,12 +1,6 @@
 package com.tech_symfony.resource_server.api.user;
 
-import com.tech_symfony.resource_server.api.role.Role;
-import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
-import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
-import com.tech_symfony.resource_server.api.role.viewmodel.RolePostVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserDetailVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserListVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserPostVm;
+import com.tech_symfony.resource_server.api.user.viewmodel.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
@@ -19,4 +13,6 @@ public interface UserMapper {
 	User updateUserFromDto(UserPostVm userPostVm, @MappingTarget User user);
 	User userPostVmToUser(UserPostVm userPostVm);
 
+	BasicUserDetailVm enityToBasicUserDetailVm(User user);
+	User updateProfileFromDto(BasicUserPostVm basicUserPostVm, @MappingTarget User user);
 }

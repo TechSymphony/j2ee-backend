@@ -7,9 +7,7 @@ import com.tech_symfony.resource_server.api.role.permission.PermissionRepository
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RolePostVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserDetailVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserListVm;
-import com.tech_symfony.resource_server.api.user.viewmodel.UserPostVm;
+import com.tech_symfony.resource_server.api.user.viewmodel.*;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -40,6 +38,9 @@ public interface UserService {
     Boolean resetPassword(String username);
 
     Boolean resetPasswordAdmin(Integer id);
+
+    BasicUserDetailVm getProfileById(Integer id);
+    BasicUserDetailVm updateProfile(Integer id, BasicUserPostVm user);
 }
 
 @Service
@@ -118,4 +119,24 @@ class DefaultUserService implements UserService {
         emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
         return true;
     }
+
+    @Override
+    public BasicUserDetailVm getProfileById(Integer id) {
+        return userRepository.findById(id)
+                .map((userMapper::enityToBasicUserDetailVm))
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+    }
+
+    @Override
+    public BasicUserDetailVm updateProfile(Integer id, BasicUserPostVm user) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+
+        User user1 = userMapper.updateProfileFromDto(user, existingUser);
+        User updatedUser = userRepository.save(user1);
+        return userMapper.enityToBasicUserDetailVm((updatedUser));
+    }
+
+
 }
+
