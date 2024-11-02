@@ -153,10 +153,17 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
     }
 
     private Path<?> getPath(Root<T> root, String field) {
+        String[] fieldParts = field.split("\\.");
         Path<?> path = root;
-        for (String part : field.split("\\.")) {
-            path = path.get(part);
+
+        for (String part : fieldParts) {
+            try {
+                path = path.get(part);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
         }
+
         return path;
     }
 
