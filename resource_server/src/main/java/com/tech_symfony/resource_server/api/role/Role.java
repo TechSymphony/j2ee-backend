@@ -4,6 +4,7 @@ import com.tech_symfony.resource_server.api.role.permission.Permission;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -24,5 +25,9 @@ public class Role extends NamedEntity {
 			joinColumns = @JoinColumn(name = "role_id"),
 			inverseJoinColumns = @JoinColumn(name = "permission_id"))
 	private Set<Permission> permissions = new LinkedHashSet<>();
+
+	@ColumnDefault("false")
+	@Column(name = "is_super_admin")
+	private Boolean isSuperAdmin;
 
 }

@@ -4,28 +4,28 @@ import java.util.*;
 
 import com.tech_symfony.auth_server.model.role.Role;
 import com.tech_symfony.auth_server.model.role.permission.Permission;
+import com.tech_symfony.auth_server.service.RoleService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 public class MyUserDetails implements UserDetails {
 
     private User user;
 
-    public MyUserDetails(User user) {
+    private Collection<? extends GrantedAuthority> authorities;
+
+    public MyUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
+        this.authorities = authorities;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Role role = user.getRole();
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if(role!=null){
-            Set<Permission> permissions= role.getPermissions();
-            for (Permission permission : permissions) {
-                authorities.add(new SimpleGrantedAuthority(permission.getName()));
-            }
-        }
 
         return authorities;
     }

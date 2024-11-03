@@ -22,8 +22,14 @@ public class DonationController {
     private final DonationService donationService;
 
     @GetMapping
-    public Page<DonationListVm> getAllDonations(@RequestParam Map<String, String> allParams) {
+    public DonationPage<DonationListVm> getAllDonations(@RequestParam Map<String, String> allParams) {
         return donationService.findAll(allParams);
+    }
+
+    @GetMapping("/report")
+    public DonationPage<DonationListVm> getReportDonations(@RequestParam Map<String, String> allParams) {
+        DonationPage<DonationListVm> donationPage = donationService.findAll(allParams);
+        return donationPage;
     }
 
     @GetMapping("/export")
