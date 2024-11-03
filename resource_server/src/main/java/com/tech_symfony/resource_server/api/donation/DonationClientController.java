@@ -6,6 +6,7 @@ import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundExceptio
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -30,7 +31,7 @@ public class DonationClientController {
     @ResponseStatus(HttpStatus.CREATED)
     public Donation create(
             @Valid @RequestBody DonationPostVm dataRaw
-    ) {
+    ) throws ValidationException {
 
         return donationService.create(dataRaw);
     }

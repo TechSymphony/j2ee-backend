@@ -4,12 +4,14 @@ package com.tech_symfony.resource_server.api.campaign;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
+import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,11 @@ public interface CampaignService {
     CampaignDetailVm update(Integer id, CampaignPostVm campaign);
 
     Boolean delete(Integer id);
+
+    void updateTotalByDonation(Donation donation);
+
+    boolean isReachTarget(Integer id);
+
 }
 
 @Service
@@ -77,4 +84,19 @@ class DefaultCampaignService implements CampaignService {
         campaignRepository.delete(campaign);
         return !campaignRepository.existsById(id);
     }
+
+    @Override
+    public void updateTotalByDonation(Donation donation) {
+
+        Campaign campaign = donation.getCampaign();
+        campaign.setCurrentAmount(campaign.getCurrentAmount().add(donation.getAmountTotal()));
+        campaignRepository.save(campaign);
+    }
+
+    @Override
+    public boolean isReachTarget(Integer id) {
+        return this.findById(id).isReachTarget();
+    }
+
+
 }

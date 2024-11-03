@@ -56,4 +56,9 @@ public class Campaign extends NamedEntity {
 	@JoinColumn(name = "beneficiary_id")
 	private Beneficiary beneficiary;
 
+
+	public boolean isReachTarget() {
+		return currentAmount.compareTo(targetAmount) >= 0;
+	}
+
 }
