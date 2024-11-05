@@ -17,13 +17,15 @@ public class UserClientController {
     private final AuthService authService;
 
     @GetMapping()
-    public BasicUserDetailVm getProfileById() {return userService.getProfileById(authService.getCurrentUserAuthenticated().getId());}
+    public BasicUserDetailVm getProfileById() {
+        return userService.getProfileById(authService.getCurrentUserAuthenticated().getId());
+    }
 
-@PutMapping()
-public BasicUserDetailVm updateProfile(@Valid @RequestBody BasicUserPostVm user) {
+    @PutMapping()
+    public BasicUserDetailVm updateProfile(@Valid @RequestBody BasicUserPostVm user) {
         Integer currentId = authService.getCurrentUserAuthenticated().getId();
-    return userService.updateProfile(currentId,user);
-}
+        return userService.updateProfile(currentId, user);
+    }
 
 }
 
