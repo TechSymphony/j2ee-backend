@@ -1,22 +1,25 @@
 package com.tech_symfony.resource_server.api.campaign;
 
-//import com.tech_symfony.resource_server.api.role.permission.PermissionRepository;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.pagination.GenericPaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 public interface CampaignService {
-    List<CampaignListVm> findAll();
+    Page<CampaignListVm> findAll(Map<String, String> params);
 
     CampaignDetailVm findById(Integer id);
 
@@ -38,12 +41,12 @@ class DefaultCampaignService implements CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final CampaignMapper campaignMapper;
+    private final SpecificationBuilderPagination<Campaign> specificationBuilder;
+    private final PaginationCommand<Campaign, CampaignListVm> paginationCommand;
 
     @Override
-    public List<CampaignListVm> findAll() {
-        return campaignRepository.findAll().stream()
-                .map(campaignMapper::entityToCampaignListVm)
-                .collect(Collectors.toList());
+    public Page<CampaignListVm> findAll(Map<String, String> params) {
+        return paginationCommand.execute(params, campaignRepository, campaignMapper, specificationBuilder);
     }
 
     @Override
