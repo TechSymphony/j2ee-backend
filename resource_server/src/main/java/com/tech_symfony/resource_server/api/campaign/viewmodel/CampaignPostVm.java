@@ -5,8 +5,10 @@ import com.tech_symfony.resource_server.api.campaign.CampaignsStatusEnum;
 import com.tech_symfony.resource_server.api.role.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.springframework.lang.Nullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,7 +37,7 @@ public record CampaignPostVm(
         @NotNull(message = "End date cannot be null")
         LocalDate endDate,
 
-        @NotNull(message = "Beneficiary cannot be null")
+        @Nullable
         Beneficiary beneficiary,
 
         @NotNull(message = "Status cannot be null")
@@ -43,5 +45,5 @@ public record CampaignPostVm(
 {
 }
 
-  
+
 

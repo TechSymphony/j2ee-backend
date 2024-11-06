@@ -3,11 +3,13 @@ package com.tech_symfony.resource_server.api.campaign;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
+import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -18,8 +20,8 @@ public class CampaignController {
     private final CampaignService campaignService;
 
     @GetMapping
-    public List<CampaignListVm> getAllCampaigns() {
-        return campaignService.findAll();
+    public Page<CampaignListVm> getAllCampaigns(@RequestParam Map<String, String> allParams) {
+        return campaignService.findAll(allParams);
     }
 
     @GetMapping("/{id}")

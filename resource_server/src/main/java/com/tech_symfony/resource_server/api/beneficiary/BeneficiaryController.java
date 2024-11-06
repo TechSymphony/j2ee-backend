@@ -3,6 +3,8 @@ package com.tech_symfony.resource_server.api.beneficiary;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
+import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
+import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,5 +34,10 @@ public class BeneficiaryController {
     @ResponseStatus(HttpStatus.CREATED)
     public BeneficiaryDetailVm createBeneficiary(@Valid @RequestBody BeneficiaryPostVm beneficiary) {
         return beneficiaryService.save(beneficiary);
+    }
+
+    @PutMapping("/{id}")
+    public BeneficiaryDetailVm updateBeneficiary(@PathVariable Integer id, @Valid @RequestBody BeneficiaryPostVm beneficiary) {
+        return beneficiaryService.update(id, beneficiary);
     }
 }

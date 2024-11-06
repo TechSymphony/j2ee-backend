@@ -11,9 +11,12 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.mapping.List;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -56,6 +59,10 @@ public class Campaign extends NamedEntity {
 	@JoinColumn(name = "beneficiary_id")
 	private Beneficiary beneficiary;
 
+	@ColumnDefault("CURRENT_TIMESTAMP")
+	@CreationTimestamp
+	@Column(name = "create_at")
+	private Instant createAt;
 
 	public boolean isReachTarget() {
 		return currentAmount.compareTo(targetAmount) >= 0;

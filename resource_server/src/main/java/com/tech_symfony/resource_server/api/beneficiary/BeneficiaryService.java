@@ -12,6 +12,7 @@ import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPa
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -57,6 +58,7 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     }
 
     @Override
+    @Transactional
     public BeneficiaryDetailVm update(Integer id, BeneficiaryPostVm beneficiary) {
         Beneficiary existingBeneficiary = beneficiaryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
