@@ -7,8 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -31,5 +33,10 @@ public class Beneficiary extends BaseEntity {
     @Column(name = "verification_status")
     @Enumerated(EnumType.ORDINAL)
     private BeneficiaryStatusEnum verificationStatus = BeneficiaryStatusEnum.WAITING;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @CreationTimestamp
+    @Column(name = "create_at")
+    private Instant createAt;
 
 }
