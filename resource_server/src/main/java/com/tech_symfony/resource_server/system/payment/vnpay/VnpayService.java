@@ -2,6 +2,7 @@ package com.tech_symfony.resource_server.system.payment.vnpay;
 
 
 import com.tech_symfony.resource_server.api.donation.Donation;
+import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ import java.util.*;
 public class VnpayService implements PaymentService<Donation, JSONObject> {
 
     private final VnpayConfig vnpayConfig;
-
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            .withZone(TimeZone.getTimeZone(JacksonConfig.MY_TIME_ZONE).toZoneId());
     @Override
     public String createBill(Donation paymentEntity) {
 
@@ -35,6 +37,7 @@ public class VnpayService implements PaymentService<Donation, JSONObject> {
                 .setScale(0, RoundingMode.HALF_UP);
 
         String billId = paymentEntity.getId().toString();
+
         String vnp_IpAddr = "127.0.0.1";
 
         String vnp_TmnCode = vnpayConfig.vnp_TmnCode;
@@ -44,8 +47,7 @@ public class VnpayService implements PaymentService<Donation, JSONObject> {
         vnp_Params.put("vnp_Command", vnpayConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                .withZone(ZoneId.systemDefault()); // or specify the correct time zone
+
         String vnp_CreateDate = formatter.format(paymentEntity.getDonationDate());
 
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
@@ -109,11 +111,9 @@ public class VnpayService implements PaymentService<Donation, JSONObject> {
         String vnp_RequestId = vnpayConfig.getRandomNumber(8);
         String vnp_Command = "querydr";
         String vnp_TxnRef = paymentEntity.getId().toString();
-        String vnp_OrderInfo = "Kiem tra ket qua GD don hang " + vnp_TxnRef;
+        String vnp_OrderInfo = "Kiem tra ket qua GD don hang:" + vnp_TxnRef;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                .withZone(ZoneId.systemDefault()); // or specify the correct time zone
-        String vnp_CreateDate = formatter.format(Instant.now());
+        String vnp_CreateDate = formatter.format(paymentEntity.getCreateTime());
 
         String vnp_TransDate = formatter.format(paymentEntity.getDonationDate());
 
@@ -134,9 +134,15 @@ public class VnpayService implements PaymentService<Donation, JSONObject> {
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-
-        String hash_Data = vnp_RequestId + "|" + vnpayConfig.vnp_Version + "|" + vnp_Command + "|" + vnpayConfig.vnp_TmnCode + "|" + vnp_TxnRef
-                + "|" + vnp_TransDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;
+        String hash_Data = vnp_RequestId + "|"
+                + vnpayConfig.vnp_Version + "|"
+                + vnp_Command + "|"
+                + vnpayConfig.vnp_TmnCode + "|"
+                + vnp_TxnRef + "|"
+                + vnp_TransDate + "|"
+                + vnp_CreateDate + "|"
+                + vnp_IpAddr + "|"
+                + vnp_OrderInfo;
 
         String vnp_SecureHash = vnpayConfig.hmacSHA512(vnpayConfig.secretKey, hash_Data);
 

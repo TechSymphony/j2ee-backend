@@ -1,5 +1,6 @@
-package com.tech_symfony.resource_server.api.donation;
+package com.tech_symfony.resource_server.api.donation.recurring;
 
+import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.system.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

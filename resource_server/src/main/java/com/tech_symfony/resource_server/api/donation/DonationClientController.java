@@ -45,10 +45,10 @@ public class DonationClientController {
 
     @PutMapping(value = "/{id}/payment")
     public void verify(
-            @PathVariable int id
+            @PathVariable Integer id
     ) {
-        Donation donation = donationService.verify(id);
-        if(donation == null) throw new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id);
+        Donation donation = donationService.findById(id);
+        donationService.verify(donation);
 
     }
 

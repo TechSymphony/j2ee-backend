@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,10 +30,18 @@ public class DemoController {
 		return "Welcome to the resource server!";
 	}
 
-	@GetMapping("/payment")
-	public String payment() {
+	@GetMapping("/payment/{id}")
+	public String payment(@PathVariable Integer id) {
 
-		donationService.sendEventVerify(42);
+		Donation donation = donationService.findById(id);
+		donationService.verify(donation);
+		return "Welcome to the resource server!";
+	}
+	@GetMapping("/payment/{id}/event")
+	public String paymentEvent(@PathVariable Integer id) {
+
+		Donation donation = donationService.findById(id);
+		donationService.sendEventVerify(donation);
 		return "Welcome to the resource server!";
 	}
 

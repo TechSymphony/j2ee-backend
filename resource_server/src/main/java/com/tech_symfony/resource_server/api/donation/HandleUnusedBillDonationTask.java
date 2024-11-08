@@ -8,11 +8,11 @@ public class HandleUnusedBillDonationTask extends TimerTask {
 
     private final DonationService donationService;
 
-    private final Integer donationId;
+    private final Donation donation;
 
     @Override
     public void run() {
-        donationService.sendEventVerify(donationId);
+        donationService.sendEventVerify(donation);
 
         cancel();
     }

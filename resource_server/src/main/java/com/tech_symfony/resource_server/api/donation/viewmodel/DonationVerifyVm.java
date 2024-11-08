@@ -8,6 +8,6 @@ import com.tech_symfony.resource_server.api.user.viewmodel.BasicUserDetailVm;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record DonationListVm(int id, BasicUserDetailVm donor, CampaignNameVm campaign, BigDecimal amountBase, BigDecimal amountTotal, Instant donationDate, DonationsFrequencyEnum frequency) {
+public record DonationVerifyVm(int id, CampaignNameVm campaign, BigDecimal amountBase, BigDecimal amountTotal, Instant donationDate, DonationsFrequencyEnum frequency) {
 
 }

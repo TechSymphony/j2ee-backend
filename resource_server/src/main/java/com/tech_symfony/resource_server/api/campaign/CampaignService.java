@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Map;
 
@@ -29,7 +30,8 @@ public interface CampaignService {
 
     Boolean delete(Integer id);
 
-    void updateTotalByDonation(Donation donation);
+    @Transactional
+    void updateTotalByDonation(Integer id, BigDecimal amountTotal);
 
     boolean isReachTarget(Integer id);
 
@@ -64,7 +66,6 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    @Transactional
     public CampaignDetailVm update(Integer id, CampaignPostVm campaign) {
         Campaign existingCampaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
@@ -89,11 +90,11 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    public void updateTotalByDonation(Donation donation) {
+    @Transactional
+    public void updateTotalByDonation(Integer id, BigDecimal amountTotal) {
 
-        Campaign campaign = donation.getCampaign();
-        campaign.setCurrentAmount(campaign.getCurrentAmount().add(donation.getAmountTotal()));
-        campaignRepository.save(campaign);
+        // Perform the atomic update directly in the database
+        campaignRepository.updateCampaignAmount(id, amountTotal);
     }
 
     @Override
