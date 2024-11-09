@@ -8,5 +8,6 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 public record CampaignDetailVm(int id, String name, String description, BigDecimal targetAmount, BigDecimal currentAmount, LocalDate startDate, LocalDate endDate, CampaignsStatusEnum status,
-                               Beneficiary beneficiary, String code, boolean isReachTarget) {
+                               Beneficiary beneficiary, String code, boolean isReachTarget,
+                               Integer numberOfDonations) {
 }

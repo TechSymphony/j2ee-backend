@@ -19,6 +19,9 @@ public class CampaignClientController {
 
     @GetMapping("/public/campaigns")
     public Page<CampaignListVm> getAllCampaigns(@RequestParam Map<String, String> allParams) {
+        allParams.put("status", String.valueOf(CampaignsStatusEnum.APPROVED));
+        allParams.put("limit", "6");
+
         return campaignService.findAll(allParams);
     }
 

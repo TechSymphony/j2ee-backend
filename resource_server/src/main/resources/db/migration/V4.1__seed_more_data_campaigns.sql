@@ -1,0 +1,57 @@
+WITH beneficiary AS (
+    SELECT "id" FROM "beneficiaries" LIMIT 1
+    ),
+    category AS (
+SELECT "id" FROM "categories" LIMIT 1
+    )
+INSERT INTO "public"."campaigns" (
+    "name", "description", "target_amount", "current_amount",
+    "start_date", "end_date", "beneficiary_id", "code", "status",
+    "create_at", "category_id", "number_of_donations"
+)
+VALUES
+    ('Hỗ trợ Sinh viên Thiếu thốn', 'Quyên góp hàng tháng hỗ trợ sinh viên có hoàn cảnh khó khăn', '10000.00', '0.00', '2024-01-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_001', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Thiết bị Học tập', 'Quyên góp mua sắm thiết bị học tập cho sinh viên', '10000.00', '0.00', '2024-01-01', '2024-06-30',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_002', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Chiến dịch Hỗ trợ Sinh viên Mới', 'Hỗ trợ sinh viên mới trong việc mua sắm sách vở, tài liệu học tập', '20000.00', '0.00', '2024-05-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_003', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Hỗ trợ Học bổng cho Sinh viên Nghèo', 'Quyên góp học bổng cho sinh viên nghèo vượt khó học tập', '50000.00', '0.00', '2024-04-01', '2024-08-01',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_004', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Hỗ trợ Sinh viên Nước Ngoài', 'Hỗ trợ tài chính cho sinh viên du học', '30000.00', '0.00', '2024-06-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_005', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Sáng tạo Sinh viên', 'Quyên góp cho các dự án sáng tạo và nghiên cứu khoa học của sinh viên', '100000.00', '0.00', '2024-03-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_006', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Hỗ trợ Sinh viên Thực tập Quốc tế', 'Quyên góp hỗ trợ sinh viên đi thực tập ở nước ngoài', '15000.00', '0.00', '2024-02-01', '2024-10-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_007', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Cung cấp Sách Vở Miễn Phí cho Sinh viên', 'Quyên góp sách vở, tài liệu học tập miễn phí cho sinh viên', '20000.00', '0.00', '2024-07-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_008', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Hỗ trợ Sinh viên Vượt Khó', 'Quyên góp hỗ trợ sinh viên gặp khó khăn trong học tập và đời sống', '25000.00', '0.00', '2024-01-15', '2024-12-15',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_009', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Thiện Nguyện Sinh viên', 'Hỗ trợ tài chính cho các hoạt động thiện nguyện do sinh viên tổ chức', '50000.00', '0.00', '2024-03-15', '2024-09-30',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_010', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Hỗ trợ Sinh viên Nghiên cứu Khoa học', 'Hỗ trợ tài chính cho sinh viên thực hiện các nghiên cứu khoa học', '40000.00', '0.00', '2024-01-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_011', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Hỗ trợ Sinh viên Khám sức khỏe', 'Quyên góp giúp sinh viên khám sức khỏe định kỳ và hỗ trợ y tế', '15000.00', '0.00', '2024-05-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_012', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Quỹ Hỗ trợ Sinh viên Tình nguyện', 'Hỗ trợ sinh viên tham gia các hoạt động tình nguyện cộng đồng', '70000.00', '0.00', '2024-06-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_013', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Dự án Nâng cao Năng lực Sinh viên', 'Quyên góp hỗ trợ sinh viên tham gia các khóa học nâng cao kỹ năng', '80000.00', '0.00', '2024-02-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_014', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0'),
+    ('Hỗ trợ Sinh viên Khởi nghiệp', 'Quyên góp hỗ trợ sinh viên khởi nghiệp và phát triển dự án kinh doanh', '60000.00', '0.00', '2024-05-01', '2024-12-31',
+    (SELECT "id" FROM beneficiary), 'CHIEN_DICH_015', '1', '2024-11-08 17:02:08.099241',
+    (SELECT "id" FROM category), '0');

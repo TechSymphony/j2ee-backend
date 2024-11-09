@@ -65,6 +65,10 @@ public class Campaign extends NamedEntity {
 	@Column(name = "create_at")
 	private Instant createAt;
 
+	@ColumnDefault("0")
+	@Column(name = "number_of_donations")
+	private Integer numberOfDonations;
+
 	public boolean isReachTarget() {
 		return currentAmount.compareTo(targetAmount) >= 0;
 	}
