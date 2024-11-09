@@ -1,14 +1,20 @@
 package com.tech_symfony.resource_server.api.donation;
 
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationExportVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryDetailVm;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
+import com.tech_symfony.resource_server.api.user.AuthService;
+import jakarta.validation.Valid;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyPutVm;
 import com.tech_symfony.resource_server.commonlibrary.exception.AccessDeniedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -39,9 +45,10 @@ public class DonationController {
         return donationPage;
     }
 
-    @GetMapping("/export")
-    public FileSystemResource export() throws IOException {
-        return donationService.export();
+    @PostMapping("/export")
+    @ResponseStatus(HttpStatus.CREATED)
+    public FileSystemResource export(@Valid @RequestBody DonationExportVm donationExportVm) throws IOException {
+        return donationService.export(donationExportVm);
     }
 
     @PutMapping(value = "/{id}/payment")

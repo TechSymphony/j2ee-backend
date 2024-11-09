@@ -27,6 +27,13 @@ public class UserClientController {
         return userService.updateProfile(currentId, user);
     }
 
+    @PutMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword() {
+        Integer currentId = authService.getCurrentUserAuthenticated().getId();
+        userService.resetPassword(currentId);
+    }
+
 }
 
 
