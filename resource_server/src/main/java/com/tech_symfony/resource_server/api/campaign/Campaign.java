@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.campaign;
 
 import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.categories.Category;
 import com.tech_symfony.resource_server.api.donation.DonationsFrequencyEnum;
 import com.tech_symfony.resource_server.api.role.Role;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
@@ -67,5 +68,9 @@ public class Campaign extends NamedEntity {
 	public boolean isReachTarget() {
 		return currentAmount.compareTo(targetAmount) >= 0;
 	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_id")
+	private Category category;
 
 }
