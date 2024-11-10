@@ -3,6 +3,8 @@ package com.tech_symfony.resource_server.api.beneficiary;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
+import com.tech_symfony.resource_server.api.donation.Donation;
+import com.tech_symfony.resource_server.api.donation.DonationPage;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -14,11 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 public interface BeneficiaryService {
 
-    Page<BeneficiaryListVm> findAll(Map<String, String> params);
+    BeneficiaryPage<BeneficiaryListVm> findAll(Map<String, String> params);
 
     BeneficiaryDetailVm findById(Integer id);
 
@@ -39,8 +42,18 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     private final SpecificationBuilderPagination<Beneficiary> specificationBuilder;
     private final PaginationCommand<Beneficiary, BeneficiaryListVm> paginationCommand;
 
-    public Page<BeneficiaryListVm> findAll(Map<String, String> params) {
-        return paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder);
+//    public BeneficiaryPage<BeneficiaryListVm> findAll(Map<String, String> params) {
+//        BigDecimal amountTotal = beneficiaryRepository.s sum(specificationBuilder.buildSpecificationFromParams(params), Donation.class, BigDecimal.class, "amountTotal");
+//
+////        return paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder);
+//        return new BeneficiaryPage<>(paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder));
+//
+//    }
+    public BeneficiaryPage<BeneficiaryListVm> findAll(Map<String, String> params) {
+
+//        return paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder);
+        return new BeneficiaryPage<>(paginationCommand.execute(params, beneficiaryRepository, beneficiaryMapper, specificationBuilder));
+
     }
 
     public BeneficiaryDetailVm findById(Integer id) {
