@@ -1,23 +1,22 @@
-package com.tech_symfony.resource_server.api.donation;
+package com.tech_symfony.resource_server.api.beneficiary;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
-public class DonationPage<T> {
+public class BeneficiaryPage<T> {
     List<T> content;
     CustomPageable page;
 
-    public DonationPage(Page<T> page, BigDecimal amountTotal) {
+    public BeneficiaryPage(Page<T> page) {
         this.content = page.getContent();
         Pageable pageable = page.getPageable();
 
-        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements(), amountTotal);
+        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements());
     }
 
     @Getter
@@ -27,13 +26,11 @@ public class DonationPage<T> {
         public int size;
         public long totalElements;
 
-        BigDecimal amountTotal;
 
-        public CustomPageable(int pageNumber, int pageSize, long totalElements, BigDecimal amountTotal) {
+        public CustomPageable(int pageNumber, int pageSize, long totalElements) {
             this.number = pageNumber;
             this.size = pageSize;
             this.totalElements = totalElements;
-            this.amountTotal = amountTotal;
         }
     }
 

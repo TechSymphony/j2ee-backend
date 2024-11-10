@@ -21,7 +21,7 @@ public class BeneficiaryController {
     private final BeneficiaryService beneficiaryService;
 
     @GetMapping
-    public Page<BeneficiaryListVm> getAllBeneficiaries(@RequestParam Map<String, String> allParams) {
+    public BeneficiaryPage<BeneficiaryListVm> getAllBeneficiaries(@RequestParam Map<String, String> allParams) {
         return beneficiaryService.findAll(allParams);
     }
 
