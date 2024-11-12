@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryClientPostVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
@@ -32,7 +33,7 @@ public class BeneficiaryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BeneficiaryDetailVm createBeneficiary(@Valid @RequestBody BeneficiaryPostVm beneficiary) {
+    public BeneficiaryDetailVm createBeneficiary(@Valid @RequestBody BeneficiaryClientPostVm beneficiary) {
         return beneficiaryService.save(beneficiary);
     }
 

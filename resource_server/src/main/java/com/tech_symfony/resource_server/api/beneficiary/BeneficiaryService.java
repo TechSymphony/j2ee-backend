@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryClientPostVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
@@ -18,14 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface BeneficiaryService {
 
     BeneficiaryPage<BeneficiaryListVm> findAll(Map<String, String> params);
 
+    Set<BeneficiaryListVm> findAllByUser(Integer userId);
+
     BeneficiaryDetailVm findById(Integer id);
 
-    BeneficiaryDetailVm save(BeneficiaryPostVm beneficiary);
+    BeneficiaryDetailVm save(BeneficiaryClientPostVm beneficiary);
 
     BeneficiaryDetailVm update(Integer id, BeneficiaryPostVm beneficiary);
 
@@ -56,6 +61,14 @@ class DefaultBeneficiaryService implements BeneficiaryService {
 
     }
 
+    @Override
+    public Set<BeneficiaryListVm> findAllByUser(Integer userId) {
+        return beneficiaryRepository.findAllByUserId(userId)
+                .stream()
+                .map(beneficiaryMapper::entityToBeneficiaryListVm)
+                .collect(Collectors.toSet());
+    }
+
     public BeneficiaryDetailVm findById(Integer id) {
         return beneficiaryRepository.findById(id)
                 .map(beneficiaryMapper::entityToBeneficiaryDetailVm)
@@ -63,8 +76,8 @@ class DefaultBeneficiaryService implements BeneficiaryService {
     }
 
     @Override
-    public BeneficiaryDetailVm save(BeneficiaryPostVm beneficiary) {
-        Beneficiary newBeneficiary = beneficiaryMapper.beneficiaryPostVmToBeneficiary(beneficiary);
+    public BeneficiaryDetailVm save(BeneficiaryClientPostVm beneficiary) {
+        Beneficiary newBeneficiary = beneficiaryMapper.beneficiaryClientPostVmToBeneficiary(beneficiary);
         newBeneficiary.setUser(authService.getCurrentUserAuthenticated());
         Beneficiary savedBeneficiary = beneficiaryRepository.save(newBeneficiary);
         return beneficiaryMapper.entityToBeneficiaryDetailVm(savedBeneficiary);

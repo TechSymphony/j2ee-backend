@@ -1,5 +1,8 @@
 package com.tech_symfony.resource_server.api.user;
 
+import com.tech_symfony.resource_server.api.beneficiary.BeneficiaryService;
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
+import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.role.RoleService;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
@@ -16,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +27,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final BeneficiaryService beneficiaryService;
+
 
     @GetMapping
     public Page<UserListVm> getAllUsers(
@@ -59,4 +65,10 @@ public class UserController {
     public List<UserListVm> importStudents(@RequestParam("file") MultipartFile file) throws IOException {
         return userService.importStudents(file);
     }
+
+    @GetMapping("/{id}/beneficiaries")
+    public Set<BeneficiaryListVm> getBeneficiariesById(@PathVariable Integer id) {
+        return beneficiaryService.findAllByUser(id);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryClientPostVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryDetailVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
 import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryPostVm;
@@ -14,4 +15,7 @@ public interface BeneficiaryMapper extends GenericMapperPagination<Beneficiary, 
 
     Beneficiary updateBeneficiaryFromDto(BeneficiaryPostVm beneficiaryPostVm, @MappingTarget Beneficiary beneficiary);
     Beneficiary beneficiaryPostVmToBeneficiary(BeneficiaryPostVm beneficiaryPostVm);
+
+    Beneficiary beneficiaryClientPostVmToBeneficiary(BeneficiaryClientPostVm beneficiaryPostVm);
+
 }
