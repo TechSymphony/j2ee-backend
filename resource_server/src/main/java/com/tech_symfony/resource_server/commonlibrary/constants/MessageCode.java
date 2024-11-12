@@ -60,6 +60,7 @@ public final class MessageCode {
     public static final String CUSTOMER_NOT_FOUND = "CUSTOMER_NOT_FOUND";
     public static final String RESOURCE_ALREADY_EXISTED = "RESOURCE_ALREADY_EXISTED";
     public static final String ACCESS_DENIED = "ACCESS_DENIED";
+    public static final String CURRENT_PASSWORD_NOT_CORRECT = "CURRENT_PASSWORD_NOT_CORRECT";
 
    private MessageCode() {
         //Add constructor

@@ -7,6 +7,7 @@ import com.tech_symfony.resource_server.api.role.RoleService;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RolePostVm;
+import com.tech_symfony.resource_server.api.user.viewmodel.ChangePasswordPostVm;
 import com.tech_symfony.resource_server.api.user.viewmodel.UserDetailVm;
 import com.tech_symfony.resource_server.api.user.viewmodel.UserListVm;
 import com.tech_symfony.resource_server.api.user.viewmodel.UserPostVm;
@@ -27,6 +28,7 @@ import java.util.Set;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
     private final BeneficiaryService beneficiaryService;
 
 
@@ -59,6 +61,13 @@ public class UserController {
     @PutMapping("/{id}/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetPasswordAdmin(@PathVariable Integer id) {userService.resetPasswordAdmin(id);}
+
+    @PutMapping("/change-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(@Valid @RequestBody ChangePasswordPostVm changePasswordPostVm) {
+        Integer currentId = authService.getCurrentUserAuthenticated().getId();
+        userService.changePassword(currentId, changePasswordPostVm);
+    }
 
     @PostMapping("/import/student")
     @ResponseStatus(HttpStatus.CREATED)

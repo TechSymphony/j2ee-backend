@@ -13,6 +13,7 @@ import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestExcept
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.importing.ImportExcelService;
 import com.tech_symfony.resource_server.system.mail.EmailService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,8 @@ public interface UserService {
     Boolean resetPassword(String username);
 
     Boolean resetPasswordAdmin(Integer id);
+
+    Boolean changePassword(Integer id, ChangePasswordPostVm changePasswordPostVm);
 
     BasicUserDetailVm getProfileById(Integer id);
     
@@ -124,6 +127,22 @@ class DefaultUserService implements UserService {
         user.setPassword(passwordEncoder.encode("password"));
         userRepository.save(user);
         emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
+        return true;
+    }
+
+    @Override
+    public Boolean changePassword(Integer id, ChangePasswordPostVm changePasswordPostVm) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+
+        if(!passwordEncoder.matches(changePasswordPostVm.currentPassword(),user.getPassword())){
+            throw new BadRequestException(MessageCode.CURRENT_PASSWORD_NOT_CORRECT);
+//            throw new EntityNotFoundException(MessageCode.CURRENT_PASSWORD_NOT_CORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordPostVm.newPassword()));
+        userRepository.save(user);
+        emailService.sendEmail(user.getEmail(), "Thay đổi mật khẩu", "Thay đổi mật khẩu thành công, vui lòng sử dụng mật khẩu mới để đăng nhập: " + changePasswordPostVm.newPassword());
+
         return true;
     }
 
