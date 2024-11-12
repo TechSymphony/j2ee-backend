@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.api.beneficiary;
 
+import com.tech_symfony.resource_server.api.donation.DonationPage;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,7 @@ public class BeneficiaryPage<T> {
         this.content = page.getContent();
         Pageable pageable = page.getPageable();
 
-        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements());
+        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements(), page.getTotalPages());
     }
 
     @Getter
@@ -25,12 +26,13 @@ public class BeneficiaryPage<T> {
         public int number;
         public int size;
         public long totalElements;
+        public long totalPages;
 
-
-        public CustomPageable(int pageNumber, int pageSize, long totalElements) {
+        public CustomPageable(int pageNumber, int pageSize, long totalElements, long totalPages) {
             this.number = pageNumber;
             this.size = pageSize;
             this.totalElements = totalElements;
+            this.totalPages = totalPages;
         }
     }
 

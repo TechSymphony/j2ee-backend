@@ -17,7 +17,7 @@ public class DonationPage<T> {
         this.content = page.getContent();
         Pageable pageable = page.getPageable();
 
-        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements(), amountTotal);
+        this.page = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements(), page.getTotalPages(), amountTotal);
     }
 
     @Getter
@@ -26,13 +26,15 @@ public class DonationPage<T> {
         public int number;
         public int size;
         public long totalElements;
+        public long totalPages;
 
         BigDecimal amountTotal;
 
-        public CustomPageable(int pageNumber, int pageSize, long totalElements, BigDecimal amountTotal) {
+        public CustomPageable(int pageNumber, int pageSize, long totalElements, long totalPages, BigDecimal amountTotal) {
             this.number = pageNumber;
             this.size = pageSize;
             this.totalElements = totalElements;
+            this.totalPages = totalPages;
             this.amountTotal = amountTotal;
         }
     }
