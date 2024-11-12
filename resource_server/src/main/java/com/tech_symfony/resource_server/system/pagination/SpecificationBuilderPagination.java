@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -108,15 +109,19 @@ class DefaultSpecificationBuilderPagination<T> implements SpecificationBuilderPa
         try {
             if (Number.class.isAssignableFrom(fieldType)) {
                 return buildNumberComparisonPredicate(criteriaBuilder, path, value, fieldType, isGreaterThan);
-            } else if (LocalDate.class.isAssignableFrom(fieldType)) {
-                LocalDate dateValue = LocalDate.parse(value, JacksonConfig.DATE_FORMATTER);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<LocalDate>) path, dateValue) : criteriaBuilder.lessThan((Path<LocalDate>) path, dateValue);
-            } else if (Instant.class.isAssignableFrom(fieldType)) {
-                Instant instantValue = LocalDate.parse(value, JacksonConfig.DATE_FORMATTER).atStartOfDay(ZoneId.systemDefault()).toInstant();
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Instant>) path, instantValue) : criteriaBuilder.lessThan((Path<Instant>) path, instantValue);
-            } else if (Date.class.isAssignableFrom(fieldType)) {
-                Date dateValue = (Date) JacksonConfig.DATE_FORMATTER.parse(value);
-                return isGreaterThan ? criteriaBuilder.greaterThan((Path<Date>) path, dateValue) : criteriaBuilder.lessThan((Path<Date>) path, dateValue);
+            } else {
+                String text = value.length() == 10 ?
+                        value + ((isGreaterThan) ? " 00:00:00" : " 23:59:59") : value;
+                if (LocalDate.class.isAssignableFrom(fieldType)) {
+                    LocalDate dateValue = LocalDate.parse(text, JacksonConfig.DATE_FORMATTER);
+                    return isGreaterThan ? criteriaBuilder.greaterThan((Path<LocalDate>) path, dateValue) : criteriaBuilder.lessThan((Path<LocalDate>) path, dateValue);
+                } else if (Instant.class.isAssignableFrom(fieldType)) {
+                    Instant instantValue = LocalDateTime.parse(text, JacksonConfig.DATE_FORMATTER).atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE)).toInstant();
+                    return isGreaterThan ? criteriaBuilder.greaterThan((Path<Instant>) path, instantValue) : criteriaBuilder.lessThan((Path<Instant>) path, instantValue);
+                } else if (Date.class.isAssignableFrom(fieldType)) {
+                    Date dateValue = (Date) JacksonConfig.DATE_FORMATTER.parse(value);
+                    return isGreaterThan ? criteriaBuilder.greaterThan((Path<Date>) path, dateValue) : criteriaBuilder.lessThan((Path<Date>) path, dateValue);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
