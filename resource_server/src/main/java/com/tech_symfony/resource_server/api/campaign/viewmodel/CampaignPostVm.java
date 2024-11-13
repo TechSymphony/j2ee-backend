@@ -2,6 +2,7 @@ package com.tech_symfony.resource_server.api.campaign.viewmodel;
 
 import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
 import com.tech_symfony.resource_server.api.campaign.CampaignsStatusEnum;
+import com.tech_symfony.resource_server.api.categories.Category;
 import com.tech_symfony.resource_server.api.role.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +40,9 @@ public record CampaignPostVm(
 
         @Nullable
         Beneficiary beneficiary,
+
+        @NotNull(message = "Category cannot be null")
+        Category category,
 
         @NotNull(message = "Status cannot be null")
         CampaignsStatusEnum status)
