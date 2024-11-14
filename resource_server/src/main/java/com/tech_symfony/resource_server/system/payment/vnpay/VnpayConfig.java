@@ -38,9 +38,9 @@ public class VnpayConfig {
     public String vnp_ApiUrl;
 
     /**
-     * 30 minutes
+     * 60 minutes
      */
-    public Integer exprationTime = 30 * 60 * 1000;
+    public Integer exprationTime = 60 * 60 * 1000;
 
     public String Sha256(String message) {
         String digest = null;

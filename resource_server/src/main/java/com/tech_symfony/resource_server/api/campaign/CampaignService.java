@@ -3,10 +3,8 @@ package com.tech_symfony.resource_server.api.campaign;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
-import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
-import com.tech_symfony.resource_server.system.pagination.GenericPaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.Map;
 
 public interface CampaignService {
@@ -34,7 +29,7 @@ public interface CampaignService {
     @Transactional
     void updateTotalByDonation(Integer id, BigDecimal amountTotal);
 
-    boolean isReachTarget(Integer id);
+    boolean isAbleToDonate(Integer id);
 
 }
 
@@ -99,8 +94,11 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    public boolean isReachTarget(Integer id) {
-        return this.findById(id).isReachTarget();
+    public boolean isAbleToDonate(Integer id) {
+        CampaignDetailVm campaign = this.findById(id);
+
+
+        return !campaign.isReachTarget() && !campaign.isExpired() && campaign.isCampaignStarted();
     }
 
 

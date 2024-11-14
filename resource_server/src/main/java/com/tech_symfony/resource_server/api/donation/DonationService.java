@@ -5,6 +5,7 @@ import com.tech_symfony.resource_server.api.campaign.CampaignService;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -22,7 +23,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
@@ -41,9 +42,9 @@ public interface DonationService {
     Donation findById(Integer donationId);
 
     @Transactional
-    void verify(Donation donationId);
+    void verify(DonationVerifyEventVm donationVerifyEventVm);
 
-    boolean sendEventVerify(Donation donation);
+    boolean sendEventVerify(DonationVerifyEventVm donationVerifyEventVm);
 
     FileSystemResource export() throws IOException;
 }
@@ -82,9 +83,10 @@ class DefaultDonationService implements DonationService {
     @Override
     @Transactional
     public Donation create(DonationPostVm donationPostVm) throws ValidationException {
-        if (campaignService.isReachTarget(donationPostVm.campaign().getId())) {
-            throw new ValidationException("Campaign is reached target");
+        if (!campaignService.isAbleToDonate(donationPostVm.campaign().getId())) {
+            throw new ValidationException("Campaign is reached target or not started or expired!");
         }
+
         Donation donation = new Donation();
 
         donation.setAmountTotal(donationPostVm.amountTotal());
@@ -97,11 +99,16 @@ class DefaultDonationService implements DonationService {
         authService.getCurrentUserAuthenticatedWithoutHandlingException().ifPresent(donation::setDonor);
 
         Donation savedDonation = donationRepository.save(donation);
-        savedDonation.setVnpayUrl(paymentService.createBill(savedDonation));
-        Timer timer = new Timer();
 
+        // need bill id to create payment url, update it to database
+        savedDonation.setPaymentUrl(paymentService.createBill(donation));
+        donationRepository.save(savedDonation);
 
-        timer.schedule(new HandleUnusedBillDonationTask(this, savedDonation), vnpayConfig.exprationTime);
+        this.sendEventVerify(new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId()));
+//        Timer timer = new Timer();
+//
+//
+//        timer.schedule(new HandleUnusedBillDonationTask(this, new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId())), vnpayConfig.exprationTime);
 
         log.info("Created bill {} at {}", savedDonation.getId(), LocalDateTime.now());
 
@@ -111,21 +118,21 @@ class DefaultDonationService implements DonationService {
     @Override
     public Donation findById(Integer donationId) {
         if (donationId != null) {
-            return donationRepository.findById(donationId)
-                    .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, donationId));
+            return donationRepository.findById(donationId).orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, donationId));
         }
         return null;
     }
 
 
     @Override
-    @RabbitListener(queues = "payment_queue")
+    @RabbitListener(queues = "payment_queue_dlx")
     @Transactional
-    public void verify(Donation donation) {
-
+    public void verify(DonationVerifyEventVm donationVerifyEventVm) {
+        Donation donation = donationRepository.findById(donationVerifyEventVm.donationId()).orElse(null);
         if (donation == null) return;
 
         try {
+
             if (donation.getStatus() == DonationStatus.IN_PROGRESS || donation.getStatus() == DonationStatus.HOLDING) {
                 JSONObject jsonObject = paymentService.verifyPay(donation);
 
@@ -134,34 +141,31 @@ class DefaultDonationService implements DonationService {
                 donation.setDonationDate(Instant.now());
 
                 donationRepository.save(donation);
-
-                campaignService.updateTotalByDonation(donation.getCampaign().getId(), donation.getAmountTotal());
+                campaignService.updateTotalByDonation(donationVerifyEventVm.campaignId(), donation.getAmountTotal());
             }
 
         } catch (TransactionException e) {
 
-            if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
-                donation.setStatus(DonationStatus.HOLDING);
-                donationRepository.save(donation);
-            }
+            // max time
+            // remove event so that prevent infinite loop
+            if (donation.getDonationDate().compareTo(Instant.now()) >= 0) {
+                if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
+                    donation.setStatus(DonationStatus.HOLDING);
+                    donationRepository.save(donation);
+                }
 
-            // retry until success
-            Timer timer = new Timer();
-            timer.schedule(new HandleUnusedBillDonationTask(this, donation), vnpayConfig.exprationTime);
-
+            } else throw e;
         }
+
     }
 
     @Override
     @Transactional
-    public boolean sendEventVerify(Donation donation) {
+    public boolean sendEventVerify(DonationVerifyEventVm donationVerifyEventVm) {
 
-        rabbitTemplate.convertAndSend(paymentExchange,
-                paymentRoutingKey,
-                donation
-        );
+        rabbitTemplate.convertAndSend(paymentExchange, paymentRoutingKey, donationVerifyEventVm);
 
-        log.info("Event for verification of donation {} was fired at {}", donation.getId(), LocalDateTime.now());
+        log.info("Event for verification of donation {} was fired at {}", donationVerifyEventVm.donationId(), LocalDateTime.now());
 
         return true;
 

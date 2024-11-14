@@ -16,8 +16,9 @@ import java.util.Optional;
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Integer>, JpaSpecificationExecutor<Campaign> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("UPDATE Campaign c SET c.currentAmount = c.currentAmount + :amountTotal WHERE c.id = :id")
     @Modifying
-    void updateCampaignAmount(@Param("id") Integer id, @Param("amountTotal") BigDecimal amountTotal);
+    @Query("UPDATE Campaign c " +
+            "SET c.currentAmount = c.currentAmount + :amountTotal, c.numberOfDonations = c.numberOfDonations + 1 " +
+            "WHERE c.id = :id")
+    int  updateCampaignAmount(@Param("id") Integer id, @Param("amountTotal") BigDecimal amountTotal);
 }

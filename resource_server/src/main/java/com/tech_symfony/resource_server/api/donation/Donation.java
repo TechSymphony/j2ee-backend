@@ -69,7 +69,7 @@ public class Donation extends BaseEntity {
     @Enumerated(EnumType.ORDINAL)
     private DonationStatus status = DonationStatus.IN_PROGRESS;
 
-    @Transient
-    String vnpayUrl;
+    @Column(name = "payment_url")
+    private String paymentUrl;
 
 }

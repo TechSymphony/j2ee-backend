@@ -5,6 +5,14 @@ spring:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1h
+          max-attempts: 3
+          max-interval: 24h
+          multiplier: 10
     template:
         retry:
             enabled: true
@@ -14,14 +22,20 @@ rabbitmq:
     email:
       name: email_queue
     payment:
-      name: payment_queue
+      name: payment_queue_dlx
+    dlx:
+      name: dlx_queue
   exchange:
     email:
       name: email_exchange
     payment:
-      name: payment_exchange
+      name: payment_exchange_dlx
+    dlx:
+      name: dlx_exchange
   binding:
     payment:
-      name: payment_routing_key
+      name: payment_routing_key_dlx
     email:
       name: email_routing_key
+    dlx:
+      name: dlx_routing_key

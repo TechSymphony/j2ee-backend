@@ -70,6 +70,14 @@ public class Campaign extends NamedEntity {
 		return currentAmount.compareTo(targetAmount) >= 0;
 	}
 
+	public boolean isExpired() {
+		return endDate.isBefore(LocalDate.now());
+	}
+
+	public boolean isCampaignStarted() {
+		return startDate.isAfter(LocalDate.now()) || startDate.isEqual(LocalDate.now());
+	}
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id")
 	private Category category;

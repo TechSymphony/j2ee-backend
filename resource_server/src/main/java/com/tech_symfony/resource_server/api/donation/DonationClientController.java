@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.donation;
 
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
@@ -48,7 +49,7 @@ public class DonationClientController {
             @PathVariable Integer id
     ) {
         Donation donation = donationService.findById(id);
-        donationService.verify(donation);
+        donationService.sendEventVerify(new DonationVerifyEventVm(donation.getId(), donation.getCampaign().getId()));
 
     }
 
