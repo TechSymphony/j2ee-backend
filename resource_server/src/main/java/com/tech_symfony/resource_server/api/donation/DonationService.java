@@ -28,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
@@ -104,13 +104,9 @@ class DefaultDonationService implements DonationService {
         savedDonation.setPaymentUrl(paymentService.createBill(donation));
         donationRepository.save(savedDonation);
 
-        this.sendEventVerify(new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId()));
-//        Timer timer = new Timer();
-//
-//
-//        timer.schedule(new HandleUnusedBillDonationTask(this, new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId())), vnpayConfig.exprationTime);
-
-        log.info("Created bill {} at {}", savedDonation.getId(), LocalDateTime.now());
+        // wait until for time expiration to verify payment
+        Timer timer = new Timer();
+        timer.schedule(new HandleUnusedBillDonationTask(this, new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId())), vnpayConfig.exprationTime);
 
         return savedDonation;
     }
@@ -146,12 +142,15 @@ class DefaultDonationService implements DonationService {
 
         } catch (TransactionException e) {
 
-            // max time
+            Instant maxTimePayment = donation.getDonationDate().plus(Duration.ofHours(24));
+
+            // max time 24h
             // remove event so that prevent infinite loop
-            if (donation.getDonationDate().compareTo(Instant.now()) >= 0) {
+            if (maxTimePayment.compareTo(Instant.now()) <= 0) {
                 if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
                     donation.setStatus(DonationStatus.HOLDING);
                     donationRepository.save(donation);
+                    log.info("Donation {} is now in HOLDING status", donation.getId());
                 }
 
             } else throw e;

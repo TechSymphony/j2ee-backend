@@ -2,6 +2,8 @@ package com.tech_symfony.resource_server.api.donation.aop;
 
 import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,29 +19,33 @@ import java.time.LocalDateTime;
 @Configuration
 public class LogStatusPayment {
 
-    @Before("execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donation)")
-    public void logBefore(JoinPoint joinPoint, Donation donation) {
-        if (donation != null) {
-            log.info("Donation {} is verifying at {}", donation.getId(), LocalDateTime.now());
+
+    @AfterReturning("execution(* com.tech_symfony.resource_server.api.donation.DonationService.create(..)) && args(donationDetailVm)")
+    public void logAfterReturningCreate(DonationDetailVm donationDetailVm) {
+        log.info("Successfully created donation {} for campaign {} at {}",
+                donationDetailVm.id(), donationDetailVm.campaign().id(), LocalDateTime.now());
+    }
+
+    @Before("execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donationVerifyEventVm)")
+    public void logBefore(JoinPoint joinPoint, DonationVerifyEventVm donationVerifyEventVm) {
+        if (donationVerifyEventVm != null) {
+            log.info("Donation {} is verifying at {}", donationVerifyEventVm.donationId(), LocalDateTime.now());
         }
     }
 
-    @AfterReturning("execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donation)")
-    public void logAfterReturning(Donation donation) {
-        if (donation != null && donation.getStatus() == DonationStatus.COMPLETED){
-            log.info("Donation {} verified successfully at {}", donation.getId(), LocalDateTime.now());
+    @AfterReturning("execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donationVerifyEventVm)")
+    public void logAfterReturning(DonationVerifyEventVm donationVerifyEventVm) {
+        if (donationVerifyEventVm != null) {
+            log.info("Donation {} verified successfully at {}", donationVerifyEventVm.donationId(), LocalDateTime.now());
         }
+
     }
 
-    @AfterThrowing(pointcut = "execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donation)", throwing = "ex")
-    public void logAfterThrowing(Donation donation, Exception ex) {
-        if (donation != null) {
-            log.debug("Sending verify for donation {} failed due to {}", donation.getId(), ex.getMessage());
+    @AfterThrowing(pointcut = "execution(* com.tech_symfony.resource_server.api.donation.DonationService.verify(..)) && args(donationVerifyEventVm)", throwing = "ex")
+    public void logAfterThrowing(DonationVerifyEventVm donationVerifyEventVm, Exception ex) {
+        if (donationVerifyEventVm != null) {
+            log.debug("Sending verify for donation {} failed due to {}", donationVerifyEventVm.donationId(), ex.getMessage());
 
-            // Log if status changed to HOLDING
-            if (donation.getStatus() == DonationStatus.HOLDING) {
-                log.info("Donation {} is now in HOLDING status", donation.getId());
-            }
         }
     }
 }
