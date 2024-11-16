@@ -16,6 +16,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
         registry.setUserDestinationPrefix("/user");
     }
 
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // for browser
