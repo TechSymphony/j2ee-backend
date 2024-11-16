@@ -66,16 +66,16 @@ public class Campaign extends NamedEntity {
 	@Column(name = "number_of_donations")
 	private Integer numberOfDonations;
 
-	public boolean isReachTarget() {
+	public boolean getIsReachTarget() {
 		return currentAmount.compareTo(targetAmount) >= 0;
 	}
 
-	public boolean isExpired() {
+	public boolean getIsExpired() {
 		return endDate.isBefore(LocalDate.now());
 	}
 
-	public boolean isCampaignStarted() {
-		return startDate.isAfter(LocalDate.now()) || startDate.isEqual(LocalDate.now());
+	public boolean getIsCampaignStarted() {
+		return startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now());
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

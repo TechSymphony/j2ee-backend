@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.system;
 
+import com.tech_symfony.resource_server.commonlibrary.exception.AccessDeniedException;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.commonlibrary.viewmodel.error.ErrorVm;
@@ -44,6 +45,14 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage();
 
         return buildErrorResponse(status, message, null, ex, request, 404);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 403);
     }
 
     @ExceptionHandler(BadRequestException.class)

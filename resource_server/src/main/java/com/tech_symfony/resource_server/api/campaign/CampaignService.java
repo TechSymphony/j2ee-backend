@@ -96,9 +96,11 @@ class DefaultCampaignService implements CampaignService {
     @Override
     public boolean isAbleToDonate(Integer id) {
         CampaignDetailVm campaign = this.findById(id);
+        boolean isReachTarget = campaign.isReachTarget();  // Campaign has not reached the target
+        boolean isExpired = campaign.isExpired();      // Campaign has not expired
+        boolean isCampaignStarted = campaign.isCampaignStarted(); // Campaign has started
 
-
-        return !campaign.isReachTarget() && !campaign.isExpired() && campaign.isCampaignStarted();
+        return !isReachTarget && !isExpired && isCampaignStarted;
     }
 
 

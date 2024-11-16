@@ -2,6 +2,7 @@ package com.tech_symfony.resource_server.api.donation;
 
 
 import com.tech_symfony.resource_server.api.campaign.CampaignService;
+import com.tech_symfony.resource_server.api.categories.CampaignNotAbleToDonateException;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
@@ -16,15 +17,15 @@ import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPa
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
 import com.tech_symfony.resource_server.system.payment.vnpay.TransactionException;
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,8 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Map;
+import java.util.Timer;
 
 public interface DonationService {
     DonationPage<DonationListVm> findAll(Map<String, String> params);
@@ -50,7 +52,13 @@ public interface DonationService {
 
     FileSystemResource export() throws IOException;
 
-    DonationDetailVm updateStatus(Integer id, DonationStatus donationStatus);
+    @Transactional
+    DonationDetailVm updateStatus(Donation donation, DonationStatus donationStatus);
+
+    @Transactional
+    DonationDetailVm updateSuccessDonationAndAmountTotalCampaign(Donation donation, Integer idCampaign);
+
+    void sendEventVerifyClient(Integer id);
 }
 
 @Service
@@ -66,6 +74,7 @@ class DefaultDonationService implements DonationService {
     private final SpecificationBuilderPagination<Donation> specificationBuilder;
     private final PaginationCommand<Donation, DonationListVm> paginationCommand;
     private final CampaignService campaignService;
+    private final CacheManager cacheManager;
 
     private final RabbitTemplate rabbitTemplate;
     @Value("${rabbitmq.exchange.payment.name}")
@@ -75,6 +84,7 @@ class DefaultDonationService implements DonationService {
     private String paymentRoutingKey;
     private final ExportPdfService<Donation> exportPdfService;
 
+    private String keyCacheEvent = "event-donation";
 
     @Override
     public DonationPage<DonationListVm> findAll(Map<String, String> params) {
@@ -87,11 +97,9 @@ class DefaultDonationService implements DonationService {
     @Override
     @Transactional
     public Donation create(DonationPostVm donationPostVm) throws ValidationException {
-//        if (!campaignService.isAbleToDonate(donationPostVm.campaign().getId())) {
-//            Set<String> errors = new HashSet<>();
-//            errors.add("campaign: Campaign is reached target or not started or expired!");
-////            throw new ConstraintViolationException(errors);
-//        }
+        if (!campaignService.isAbleToDonate(donationPostVm.campaign().getId())) {
+            throw new CampaignNotAbleToDonateException();
+        }
 
         Donation donation = new Donation();
 
@@ -135,15 +143,14 @@ class DefaultDonationService implements DonationService {
 
         try {
 
-            if (donation.getStatus() == DonationStatus.IN_PROGRESS || donation.getStatus() == DonationStatus.HOLDING) {
+            if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
                 JSONObject jsonObject = paymentService.verifyPay(donation);
 
                 donation.setTransactionId(jsonObject.getString("vnp_TransactionNo"));
                 donation.setStatus(DonationStatus.COMPLETED);
                 donation.setDonationDate(Instant.now());
 
-                donationRepository.save(donation);
-                campaignService.updateTotalByDonation(donationVerifyEventVm.campaignId(), donation.getAmountTotal());
+                this.updateSuccessDonationAndAmountTotalCampaign(donation, donationVerifyEventVm.campaignId());
             }
 
         } catch (TransactionException e) {
@@ -154,18 +161,23 @@ class DefaultDonationService implements DonationService {
             // remove event so that prevent infinite loop
             if (maxTimePayment.compareTo(Instant.now()) <= 0) {
                 if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
-                    donation.setStatus(DonationStatus.HOLDING);
-                    donationRepository.save(donation);
+                    this.updateStatus(donation, DonationStatus.HOLDING);
+
                     log.info("Donation {} is now in HOLDING status", donation.getId());
                 }
 
             } else throw e;
         }
 
+        Cache cache = getEventDonationCache();
+        if (cache != null) {
+            cache.evict(keyCacheEvent + "-" + donationVerifyEventVm.donationId());
+        }
+
+
     }
 
     @Override
-    @Transactional
     public boolean sendEventVerify(DonationVerifyEventVm donationVerifyEventVm) {
 
         rabbitTemplate.convertAndSend(paymentExchange, paymentRoutingKey, donationVerifyEventVm);
@@ -182,11 +194,47 @@ class DefaultDonationService implements DonationService {
 
     @Override
     @Transactional
-    public DonationDetailVm updateStatus(Integer id, DonationStatus donationStatus) {
-        Donation donation = this.findById(id);
+    public DonationDetailVm updateStatus(Donation donation, DonationStatus donationStatus) {
         donation.setStatus(donationStatus);
-        campaignService.updateTotalByDonation(donation.getCampaign().getId(), donation.getAmountTotal());
+        donationRepository.save(donation);
 
         return donationMapper.entityToDonationDetailVm(donationRepository.save(donation));
+    }
+
+    @Transactional
+    public DonationDetailVm updateSuccessDonationAndAmountTotalCampaign(Donation donation, Integer idCampaign) {
+        campaignService.updateTotalByDonation(idCampaign, donation.getAmountTotal());
+
+        return this.updateStatus(donation, DonationStatus.COMPLETED);
+    }
+
+    private Cache getEventDonationCache() {
+
+        return cacheManager.getCache(keyCacheEvent);
+    }
+
+    /**
+     * Send event to verify donation only once time
+     *
+     * @param id
+     */
+    @Override
+    public void sendEventVerifyClient(Integer id) {
+        // prevent send event verify multiple times
+
+        Cache cache = getEventDonationCache();
+        if (cache != null) {
+            Cache.ValueWrapper cachedValue = cache.get(keyCacheEvent + "-" + id);
+            if (cachedValue != null) {
+                return;
+            } else cache.put(keyCacheEvent + "-" + id, true);
+        }
+
+        Donation donation = this.findById(id);
+        if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
+            this.sendEventVerify(new DonationVerifyEventVm(donation.getId(), donation.getCampaign().getId()));
+        }
+
+
     }
 }

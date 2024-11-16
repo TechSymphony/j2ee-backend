@@ -72,4 +72,8 @@ public class Donation extends BaseEntity {
     @Column(name = "payment_url")
     private String paymentUrl;
 
+    public boolean getIsAbleToPreview(){
+        return this.status == DonationStatus.IN_PROGRESS || this.status == DonationStatus.HOLDING;
+    }
+
 }

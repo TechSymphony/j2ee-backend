@@ -11,6 +11,6 @@ import java.time.Instant;
 
 public record DonationListVm(int id, BasicUserDetailVm donor, CampaignNameVm campaign, BigDecimal amountBase,
                              BigDecimal amountTotal, Instant donationDate, DonationsFrequencyEnum frequency,
-                             DonationStatus status) {
+                             DonationStatus status, boolean isAbleToPreview) {
 
 }
