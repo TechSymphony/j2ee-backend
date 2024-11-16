@@ -31,6 +31,8 @@ public class ResourceServerConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/**", "/swagger-ui.html", "/openapi-3.0.yml", "/image/**").permitAll()
                         // payment
                         .requestMatchers("/public/**").permitAll()
+                        // test web socket
+                        .requestMatchers("/ws/**").permitAll()
                         // Allow POST requests to /api/** endpoints
                         .anyRequest().authenticated()
                 )
