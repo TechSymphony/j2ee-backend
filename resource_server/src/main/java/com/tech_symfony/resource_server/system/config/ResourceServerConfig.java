@@ -35,6 +35,8 @@ public class ResourceServerConfig {
                         // payment
                         .requestMatchers("/public/**").permitAll()
                         // test web socket
+                        .requestMatchers("/testws/**").permitAll()
+                        // web socket
                         .requestMatchers("/ws/**").permitAll()
                         // Allow POST requests to /api/** endpoints
                         .anyRequest().authenticated()
