@@ -1,12 +1,15 @@
 package com.tech_symfony.resource_server.api.message;
 
 public class Message {
-    private String text;
+    private String content;
 
     private String to;
 
-    public String getText() {
-        return text;
+    public void setContent() {
+        this.content = content;
+    }
+    public String getContent() {
+        return content;
     }
 
     public String getTo() {

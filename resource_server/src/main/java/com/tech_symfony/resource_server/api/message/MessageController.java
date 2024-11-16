@@ -1,6 +1,7 @@
 package com.tech_symfony.resource_server.api.message;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -14,15 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/messages")
 public class MessageController {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MessageService messageService;
 
     @MessageMapping("/application")
-    @SendTo("/all/messages")
-    public Message send(Message message) throws Exception { return message; }
+    public void send(Message message) throws MessagingException {
+        messageService.sendAll(message);
+    }
 
     @MessageMapping("/private")
-    public void sendToSpecificUser(Message message) {
-        simpMessagingTemplate.convertAndSend("/specific/" + message.getTo() + "/messages", message);
+    public void sendToSpecificUser(Message message) throws MessagingException {
+        messageService.sendTo(message);
     }
 
 }
