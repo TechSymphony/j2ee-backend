@@ -3,6 +3,7 @@ package com.tech_symfony.resource_server.api.donation;
 
 import com.tech_symfony.resource_server.api.campaign.CampaignService;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
@@ -15,9 +16,11 @@ import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPa
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
 import com.tech_symfony.resource_server.system.payment.vnpay.TransactionException;
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,8 +34,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Timer;
+import java.util.*;
 
 public interface DonationService {
     DonationPage<DonationListVm> findAll(Map<String, String> params);
@@ -47,6 +49,8 @@ public interface DonationService {
     boolean sendEventVerify(DonationVerifyEventVm donationVerifyEventVm);
 
     FileSystemResource export() throws IOException;
+
+    DonationDetailVm updateStatus(Integer id, DonationStatus donationStatus);
 }
 
 @Service
@@ -83,9 +87,11 @@ class DefaultDonationService implements DonationService {
     @Override
     @Transactional
     public Donation create(DonationPostVm donationPostVm) throws ValidationException {
-        if (!campaignService.isAbleToDonate(donationPostVm.campaign().getId())) {
-            throw new ValidationException("Campaign is reached target or not started or expired!");
-        }
+//        if (!campaignService.isAbleToDonate(donationPostVm.campaign().getId())) {
+//            Set<String> errors = new HashSet<>();
+//            errors.add("campaign: Campaign is reached target or not started or expired!");
+////            throw new ConstraintViolationException(errors);
+//        }
 
         Donation donation = new Donation();
 
@@ -172,5 +178,15 @@ class DefaultDonationService implements DonationService {
 
     public FileSystemResource export() throws IOException {
         return new FileSystemResource(exportPdfService.from(donationRepository.findAll(), "donations"));
+    }
+
+    @Override
+    @Transactional
+    public DonationDetailVm updateStatus(Integer id, DonationStatus donationStatus) {
+        Donation donation = this.findById(id);
+        donation.setStatus(donationStatus);
+        campaignService.updateTotalByDonation(donation.getCampaign().getId(), donation.getAmountTotal());
+
+        return donationMapper.entityToDonationDetailVm(donationRepository.save(donation));
     }
 }

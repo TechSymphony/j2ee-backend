@@ -1,5 +1,7 @@
 package com.tech_symfony.resource_server.api.donation;
 
+import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
@@ -43,14 +45,20 @@ public class DonationClientController {
                     "để hiển thị với khách hàng, kết quả có thể thành công hoặc thất bại. Khi thất bại, lí do " +
                     "sẽ được nêu rõ. "
     )
-
-    @PutMapping(value = "/{id}/payment")
-    public void verify(
+    @PutMapping(value = "/{id}/payment/event")
+    public void sendVerifyEvent(
             @PathVariable Integer id
     ) {
         Donation donation = donationService.findById(id);
         donationService.sendEventVerify(new DonationVerifyEventVm(donation.getId(), donation.getCampaign().getId()));
+    }
 
+    @PutMapping(value = "/{id}/payment")
+    public DonationDetailVm verify(
+            @PathVariable Integer id,
+            DonationStatus donationStatus
+    ) {
+        return donationService.updateStatus(id, donationStatus);
     }
 
 }

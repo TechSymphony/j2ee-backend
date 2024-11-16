@@ -10,4 +10,5 @@ public interface DonationMapper extends GenericMapperPagination<Donation, Donati
 
 	DonationListVm entityDonationListVm(Donation donation);
 
+    DonationDetailVm entityToDonationDetailVm(Donation donation);
 }
