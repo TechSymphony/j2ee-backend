@@ -1,14 +1,18 @@
 package com.tech_symfony.resource_server.api.role;
 
+import com.tech_symfony.resource_server.api.donation.DonationPage;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RolePostVm;
+import com.tech_symfony.resource_server.api.user.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,10 +20,12 @@ import java.util.List;
 public class RoleController {
 
     private final RoleService roleService;
+    private final AuthService authService;
 
     @GetMapping
-    public List<RoleListVm> getAllRoles() {
-        return roleService.findAll();
+    public RolePage<RoleListVm> getAllRoles(@RequestParam Map<String, String> allParams) {
+        allParams.put("role.id", authService.getCurrentUserAuthenticated().getId().toString());
+        return roleService.findAll(allParams);
     }
 
     @GetMapping("/{id}")
