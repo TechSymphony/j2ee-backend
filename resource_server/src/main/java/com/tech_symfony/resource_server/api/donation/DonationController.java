@@ -1,5 +1,6 @@
 package com.tech_symfony.resource_server.api.donation;
 
+import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryDetailVm;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
@@ -24,6 +25,13 @@ public class DonationController {
     public DonationPage<DonationListVm> getAllDonations(@RequestParam Map<String, String> allParams) {
         return donationService.findAll(allParams);
     }
+
+
+    @GetMapping("/{id}")
+    public DonationDetailVm getDonationById(@PathVariable Integer id) {
+        return donationService.findByIdWithMapper(id);
+    }
+
 
     @GetMapping("/report")
     public DonationPage<DonationListVm> getReportDonations(@RequestParam Map<String, String> allParams) {

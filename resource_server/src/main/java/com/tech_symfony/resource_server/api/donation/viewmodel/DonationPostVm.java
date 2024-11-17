@@ -18,7 +18,10 @@ public record DonationPostVm(
         String message,
 
         @NotNull
-        Campaign campaign
+        Campaign campaign,
+
+        @NotNull
+        boolean isAnonymous
 
 ) {
 }

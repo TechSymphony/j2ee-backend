@@ -45,6 +45,8 @@ public interface DonationService {
 
     Donation findById(Integer donationId);
 
+    DonationDetailVm findByIdWithMapper(Integer donationId);
+
     @Transactional
     void verify(DonationVerifyEventVm donationVerifyEventVm);
 
@@ -108,6 +110,7 @@ class DefaultDonationService implements DonationService {
 
         donation.setMessage(donationPostVm.message());
         donation.setCampaign(donationPostVm.campaign());
+        donation.setAnonymous(donationPostVm.isAnonymous());
 
         // public user are able to make create payment
         authService.getCurrentUserAuthenticatedWithoutHandlingException().ifPresent(donation::setDonor);
@@ -131,6 +134,13 @@ class DefaultDonationService implements DonationService {
             return donationRepository.findById(donationId).orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, donationId));
         }
         return null;
+    }
+
+    @Override
+    public DonationDetailVm findByIdWithMapper(Integer donationId) {
+        return donationRepository.findById(donationId)
+                .map(donationMapper::entityToDonationDetailVm)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, donationId));
     }
 
 

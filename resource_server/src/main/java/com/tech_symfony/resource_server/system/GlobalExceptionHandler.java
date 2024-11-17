@@ -47,8 +47,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(status, message, null, ex, request, 404);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 403);
+    }
+
+    @ExceptionHandler({org.springframework.security.access.AccessDeniedException.class})
+    public ResponseEntity<ErrorVm> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
         String message = ex.getMessage();
 

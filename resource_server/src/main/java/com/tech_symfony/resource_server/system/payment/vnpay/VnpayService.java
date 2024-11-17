@@ -58,7 +58,7 @@ public class VnpayService implements PaymentService<Donation, JSONObject> {
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         vnp_Params.put("vnp_Locale", "vn");
 
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + billId);
+        vnp_Params.put("vnp_OrderInfo", paymentEntity.getMessage());
         vnp_Params.put("vnp_OrderType", orderType);
 
         vnp_Params.put("vnp_ReturnUrl", vnpayConfig.vnp_ReturnFrontendUrl);
