@@ -35,11 +35,18 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
 public interface DonationService {
     DonationPage<DonationListVm> findAll(Map<String, String> params);
+
+    List<DonationListVm> getTopDonationsByCampaignId(int campaignId);
+
+    List<DonationListVm> getDonationsByCampaignId(int campaignId);
 
     Donation create(DonationPostVm donationPostVm) throws ValidationException;
 
@@ -94,6 +101,25 @@ class DefaultDonationService implements DonationService {
 
         return new DonationPage<>(paginationCommand.execute(params, donationRepository, donationMapper, specificationBuilder), amountTotal);
 
+    }
+
+    @Override
+    public List<DonationListVm> getTopDonationsByCampaignId(int campaignId) {
+        List<Donation> topDonations = donationRepository.getTopDonationsByCampaignId(campaignId);
+        return topDonations.stream()
+                .limit(10)
+                .map(donationMapper::entityDonationListVm)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DonationListVm> getDonationsByCampaignId(int campaignId) {
+        List<Donation> donations = donationRepository.getDonationsByCampaignId(campaignId);
+        return donations.stream()
+                .sorted(Comparator.comparing(Donation::getDonationDate))
+                .limit(10)
+                .map(donationMapper::entityDonationListVm)
+                .collect(Collectors.toList());
     }
 
     @Override
