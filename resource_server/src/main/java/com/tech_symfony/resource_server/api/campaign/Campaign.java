@@ -2,10 +2,7 @@ package com.tech_symfony.resource_server.api.campaign;
 
 import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
 import com.tech_symfony.resource_server.api.categories.Category;
-import com.tech_symfony.resource_server.api.donation.DonationsFrequencyEnum;
-import com.tech_symfony.resource_server.api.role.Role;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
-import com.tech_symfony.resource_server.api.donation.Donation;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -69,8 +66,16 @@ public class Campaign extends NamedEntity {
 	@Column(name = "number_of_donations")
 	private Integer numberOfDonations;
 
-	public boolean isReachTarget() {
+	public boolean getIsReachTarget() {
 		return currentAmount.compareTo(targetAmount) >= 0;
+	}
+
+	public boolean getIsExpired() {
+		return endDate.isBefore(LocalDate.now());
+	}
+
+	public boolean getIsCampaignStarted() {
+		return startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now());
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

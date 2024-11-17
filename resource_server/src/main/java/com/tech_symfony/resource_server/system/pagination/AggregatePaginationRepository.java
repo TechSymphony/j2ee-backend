@@ -1,4 +1,4 @@
-package com.tech_symfony.resource_server.api.donation;
+package com.tech_symfony.resource_server.system.pagination;
 
 import com.tech_symfony.resource_server.system.model.BaseEntity;
 import jakarta.persistence.EntityManager;

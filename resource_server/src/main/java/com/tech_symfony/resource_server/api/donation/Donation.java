@@ -1,6 +1,9 @@
 package com.tech_symfony.resource_server.api.donation;
 
 import com.tech_symfony.resource_server.api.campaign.Campaign;
+import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
+import com.tech_symfony.resource_server.api.donation.constant.DonationsFrequencyEnum;
+import com.tech_symfony.resource_server.api.donation.recurring.RecurringDonation;
 import com.tech_symfony.resource_server.api.user.User;
 import com.tech_symfony.resource_server.system.model.BaseEntity;
 import jakarta.persistence.*;
@@ -66,7 +69,11 @@ public class Donation extends BaseEntity {
     @Enumerated(EnumType.ORDINAL)
     private DonationStatus status = DonationStatus.IN_PROGRESS;
 
-    @Transient
-    String vnpayUrl;
+    @Column(name = "payment_url")
+    private String paymentUrl;
+
+    public boolean getIsAbleToPreview(){
+        return this.status == DonationStatus.IN_PROGRESS || this.status == DonationStatus.HOLDING;
+    }
 
 }

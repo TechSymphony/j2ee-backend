@@ -1,9 +1,6 @@
 package com.tech_symfony.resource_server.api.donation;
 
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
-import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
-import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
-import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.xml.bind.ValidationException;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class DonationClientController {
 
     private final DonationService donationService;
-    private final VnpayConfig vnpayConfig;
 
     @Operation(
             summary = "Thêm số tiền muốn từ thiện trước khi thanh toán",
@@ -38,18 +34,14 @@ public class DonationClientController {
 
     @Operation(
             summary = "Thực hiện thanh toán",
-            description = "API được gọi khi vừa thanh toán và chuyển về trang thông báo, API sẽ trả về kết quả cần thiết " +
-                    "để hiển thị với khách hàng, kết quả có thể thành công hoặc thất bại. Khi thất bại, lí do " +
-                    "sẽ được nêu rõ. "
+            description = "API được frontend gọi nếu thanh toán thành công và giới hạn chỉ 1 lần gọi. " +
+                    "Khi gọi API này, hóa đơn sẽ được update trạng thái thành `PAID` và thời gian thanh toán."
     )
-
-    @PutMapping(value = "/{id}/payment")
-    public void verify(
-            @PathVariable int id
+    @PutMapping(value = "/{id}/payment/event")
+    public void sendVerifyEvent(
+            @PathVariable Integer id
     ) {
-        Donation donation = donationService.verify(id);
-        if(donation == null) throw new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id);
-
+        donationService.sendEventVerifyClient(id);
     }
 
 }

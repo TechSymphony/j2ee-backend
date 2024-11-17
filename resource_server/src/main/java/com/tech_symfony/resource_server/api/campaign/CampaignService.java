@@ -3,10 +3,8 @@ package com.tech_symfony.resource_server.api.campaign;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
-import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
-import com.tech_symfony.resource_server.system.pagination.GenericPaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
 import java.util.Map;
 
 public interface CampaignService {
@@ -29,9 +26,10 @@ public interface CampaignService {
 
     Boolean delete(Integer id);
 
-    void updateTotalByDonation(Donation donation);
+    @Transactional
+    void updateTotalByDonation(Integer id, BigDecimal amountTotal);
 
-    boolean isReachTarget(Integer id);
+    boolean isAbleToDonate(Integer id);
 
 }
 
@@ -64,7 +62,6 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    @Transactional
     public CampaignDetailVm update(Integer id, CampaignPostVm campaign) {
         Campaign existingCampaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
@@ -89,16 +86,21 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    public void updateTotalByDonation(Donation donation) {
+    @Transactional
+    public void updateTotalByDonation(Integer id, BigDecimal amountTotal) {
 
-        Campaign campaign = donation.getCampaign();
-        campaign.setCurrentAmount(campaign.getCurrentAmount().add(donation.getAmountTotal()));
-        campaignRepository.save(campaign);
+        // Perform the atomic update directly in the database
+        campaignRepository.updateCampaignAmount(id, amountTotal);
     }
 
     @Override
-    public boolean isReachTarget(Integer id) {
-        return this.findById(id).isReachTarget();
+    public boolean isAbleToDonate(Integer id) {
+        CampaignDetailVm campaign = this.findById(id);
+        boolean isReachTarget = campaign.isReachTarget();  // Campaign has not reached the target
+        boolean isExpired = campaign.isExpired();      // Campaign has not expired
+        boolean isCampaignStarted = campaign.isCampaignStarted(); // Campaign has started
+
+        return !isReachTarget && !isExpired && isCampaignStarted;
     }
 
 
