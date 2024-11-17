@@ -1,5 +1,10 @@
 package com.tech_symfony.resource_server.api.role;
 
+import com.tech_symfony.resource_server.api.beneficiary.Beneficiary;
+import com.tech_symfony.resource_server.api.beneficiary.BeneficiaryPage;
+import com.tech_symfony.resource_server.api.beneficiary.viewmodel.BeneficiaryListVm;
+import com.tech_symfony.resource_server.api.donation.Donation;
+import com.tech_symfony.resource_server.api.donation.DonationPage;
 import com.tech_symfony.resource_server.api.role.permission.PermissionRepository;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleDetailVm;
 import com.tech_symfony.resource_server.api.role.viewmodel.RoleListVm;
@@ -7,15 +12,20 @@ import com.tech_symfony.resource_server.api.role.viewmodel.RolePostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestException;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface RoleService {
-    List<RoleListVm> findAll();
+    RolePage<RoleListVm> findAll(Map<String, String> params);
 
     RoleDetailVm findById(Integer id);
 
@@ -33,12 +43,12 @@ class DefaultRoleService implements RoleService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
+    private final SpecificationBuilderPagination<Role> specificationBuilder;
+    private final PaginationCommand<Role, RoleListVm> paginationCommand;
 
     @Override
-    public List<RoleListVm> findAll() {
-        return roleRepository.findAll().stream()
-                .map(roleMapper::entityToRoleListVm)
-                .collect(Collectors.toList());
+    public RolePage<RoleListVm> findAll(Map<String, String> params) {
+        return new RolePage<>(paginationCommand.execute(params, roleRepository,  roleMapper, specificationBuilder));
     }
 
     @Override
