@@ -45,12 +45,6 @@ public class DonationController {
         return donationPage;
     }
 
-    @PostMapping("/export")
-    @ResponseStatus(HttpStatus.CREATED)
-    public FileSystemResource export(@Valid @RequestBody DonationExportVm donationExportVm) throws IOException {
-        return donationService.export(donationExportVm);
-    }
-
     @PutMapping(value = "/{id}/payment")
     public DonationDetailVm verify(
             @PathVariable Integer id,

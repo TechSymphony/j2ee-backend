@@ -279,10 +279,7 @@ class DefaultDonationService implements DonationService {
         }
         if (donationExportVm.type() != null && donationExportVm.type().equals("student_only")) {
             donations = donations.stream()
-                    .filter(donation -> {
-                        User user = donation.getDonor();
-                        return user.isStudent();
-                    })
+                    .filter(donation -> donation.getDonor().getIsStudent())
                     .collect(Collectors.toList());
         }
         return new FileSystemResource(exportPdfService.from(donations, "donations"));
