@@ -5,6 +5,7 @@ import com.tech_symfony.resource_server.api.campaign.CampaignService;
 import com.tech_symfony.resource_server.api.categories.CampaignNotAbleToDonateException;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationExportVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
@@ -59,8 +60,6 @@ public interface DonationService {
 
     boolean sendEventVerify(DonationVerifyEventVm donationVerifyEventVm);
 
-    FileSystemResource export() throws IOException;
-
     @Transactional
     DonationDetailVm updateStatus(Donation donation, DonationStatus donationStatus);
 
@@ -68,6 +67,7 @@ public interface DonationService {
     DonationDetailVm updateSuccessDonationAndAmountTotalCampaign(Donation donation, Integer idCampaign);
 
     void sendEventVerifyClient(Integer id);
+    FileSystemResource export(DonationExportVm donationExportVm) throws IOException;
 }
 
 @Service
@@ -224,10 +224,6 @@ class DefaultDonationService implements DonationService {
 
     }
 
-    public FileSystemResource export() throws IOException {
-        return new FileSystemResource(exportPdfService.from(donationRepository.findAll(), "donations"));
-    }
-
     @Override
     @Transactional
     public DonationDetailVm updateStatus(Donation donation, DonationStatus donationStatus) {
@@ -270,7 +266,22 @@ class DefaultDonationService implements DonationService {
         if (donation.getStatus() == DonationStatus.IN_PROGRESS) {
             this.sendEventVerify(new DonationVerifyEventVm(donation.getId(), donation.getCampaign().getId()));
         }
+    }
 
 
+    @Override
+    public FileSystemResource export(DonationExportVm donationExportVm) throws IOException {
+        List<Donation> donations = donationRepository.findAll();
+        if (donationExportVm.campaign() != 0) {
+            donations = donations.stream()
+                    .filter(donation -> donation.getCampaign().getId() == donationExportVm.campaign())
+                    .collect(Collectors.toList());
+        }
+        if (donationExportVm.type() != null && donationExportVm.type().equals("student_only")) {
+            donations = donations.stream()
+                    .filter(donation -> donation.getDonor().getIsStudent())
+                    .collect(Collectors.toList());
+        }
+        return new FileSystemResource(exportPdfService.from(donations, "donations"));
     }
 }

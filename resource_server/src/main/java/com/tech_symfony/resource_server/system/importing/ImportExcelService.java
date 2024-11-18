@@ -60,7 +60,7 @@ class DefaultImportExcelService<T> implements ImportExcelService {
                         user.setFullName(fullName);
                         user.setEmail(row.getCell(7).getStringCellValue());
                         user.setUsername(row.getCell(1).getStringCellValue());
-                        user.setStudent(true);
+                        user.setIsStudent(true);
                         user.setPassword("password");
                         if (user.getFullName().isEmpty()
                         || user.getEmail().isEmpty()

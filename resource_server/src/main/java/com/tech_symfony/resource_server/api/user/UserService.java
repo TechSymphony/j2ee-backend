@@ -13,7 +13,9 @@ import com.tech_symfony.resource_server.commonlibrary.exception.BadRequestExcept
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.importing.ImportExcelService;
 import com.tech_symfony.resource_server.system.mail.EmailService;
-import jakarta.persistence.EntityNotFoundException;
+import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
+import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
+import com.tech_symfony.resource_server.system.password.RandomPasswordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,10 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface UserService {
-    Page<UserListVm> findAll(Integer page, Integer limit, String sortBy);
+    Page<UserListVm> findAll(Map<String, String> params);
 
     UserDetailVm findById(Integer id);
 
@@ -39,9 +42,7 @@ public interface UserService {
 
     Boolean delete(Integer id);
 
-    Boolean resetPassword(String username);
-
-    Boolean resetPasswordAdmin(Integer id);
+    Boolean resetPassword(Integer id);
 
     Boolean changePassword(Integer id, ChangePasswordPostVm changePasswordPostVm);
 
@@ -61,12 +62,14 @@ class DefaultUserService implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final ImportExcelService importExcelService;
+    private final RandomPasswordService randomPasswordService;
+
+    private final PaginationCommand<User, UserListVm> paginationCommand;
+    private final SpecificationBuilderPagination<User> specificationBuilder;
 
     @Override
-    public Page<UserListVm> findAll(Integer page, Integer limit, String sortBy) {
-        Pageable paging = PageRequest.of(page, limit, Sort.by(sortBy));
-        return userRepository.findAll(paging)
-                .map(userMapper::enityToUserListVm);
+    public Page<UserListVm> findAll(Map<String, String> params) {
+        return paginationCommand.execute(params, userRepository, userMapper, specificationBuilder);
     }
 
     @Override
@@ -111,22 +114,13 @@ class DefaultUserService implements UserService {
     }
 
     @Override
-    public Boolean resetPassword(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, username));
-        user.setPassword(passwordEncoder.encode("password"));
-        userRepository.save(user);
-        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
-        return true;
-    }
-
-    @Override
-    public Boolean resetPasswordAdmin(Integer id) {
+    public Boolean resetPassword(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
-        user.setPassword(passwordEncoder.encode("password"));
+        String password = randomPasswordService.generatePassword();
+        user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to 'password'");
+        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to '"+password+"'");
         return true;
     }
 

@@ -65,5 +65,14 @@ public class User extends BaseEntity {
     private String username;
 
     @Column(name = "is_student", nullable = false)
-    private boolean isStudent = false;
+    private boolean isStudent;
+
+    public boolean getIsStudent() {
+        return isStudent;
+    }
+
+    public void setIsStudent( boolean isStudent) {
+        this.isStudent = isStudent;
+    }
+
 }

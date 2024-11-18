@@ -22,10 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface RoleService {
     RolePage<RoleListVm> findAll(Map<String, String> params);
+
+    Set<RoleListVm> findAll();
 
     RoleDetailVm findById(Integer id);
 
@@ -49,6 +52,13 @@ class DefaultRoleService implements RoleService {
     @Override
     public RolePage<RoleListVm> findAll(Map<String, String> params) {
         return new RolePage<>(paginationCommand.execute(params, roleRepository,  roleMapper, specificationBuilder));
+    }
+
+    @Override
+    public Set<RoleListVm> findAll() {
+        return roleRepository.findAll().stream()
+                .map(roleMapper::entityToRoleListVm)
+                .collect(Collectors.toSet());
     }
 
     @Override

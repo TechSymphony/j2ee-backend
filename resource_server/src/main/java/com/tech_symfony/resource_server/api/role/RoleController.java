@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +25,12 @@ public class RoleController {
 
     @GetMapping
     public RolePage<RoleListVm> getAllRoles(@RequestParam Map<String, String> allParams) {
-        allParams.put("role.id", authService.getCurrentUserAuthenticated().getId().toString());
         return roleService.findAll(allParams);
+    }
+
+    @GetMapping("/options")
+    public Set<RoleListVm> getRoleOptions() {
+        return roleService.findAll();
     }
 
     @GetMapping("/{id}")

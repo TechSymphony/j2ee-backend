@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,10 +34,7 @@ public class UserController {
 
 
     @GetMapping
-    public Page<UserListVm> getAllUsers(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer limit,
-            @RequestParam(defaultValue = "id") String sortBy) { return userService.findAll(page, limit, sortBy);}
+    public Page<UserListVm> getAllUsers(@RequestParam Map<String, String> allParams) { return userService.findAll(allParams);}
 
     @GetMapping("/{id}")
     public UserDetailVm getUserById(@PathVariable Integer id) { return userService.findById(id);}
@@ -54,13 +52,9 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Integer id) {userService.delete(id);}
 
-    @PutMapping("/reset-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@PathVariable String username) {userService.resetPassword(username);}
-
     @PutMapping("/{id}/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPasswordAdmin(@PathVariable Integer id) {userService.resetPasswordAdmin(id);}
+    public void resetPasswordAdmin(@PathVariable Integer id) {userService.resetPassword(id);}
 
     @PutMapping("/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
