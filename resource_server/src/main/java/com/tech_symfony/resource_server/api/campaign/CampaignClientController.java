@@ -4,12 +4,16 @@ import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.system.config.JacksonConfig;
+import com.tech_symfony.resource_server.api.donation.DonationService;
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -18,6 +22,7 @@ import java.util.Map;
 public class CampaignClientController {
 
     private final CampaignService campaignService;
+    private final DonationService donationService;
 
     @GetMapping("/public/campaigns")
     public Page<CampaignListVm> getAllCampaigns(@RequestParam Map<String, String> allParams) {
@@ -29,6 +34,25 @@ public class CampaignClientController {
         allParams.put("limit", "6");
 
         return campaignService.findAll(allParams);
+    }
+
+    @GetMapping("/public/campaigns/{id}")
+    public CampaignDetailVm getCampaignById(@PathVariable Integer id) {
+        CampaignDetailVm campaign = campaignService.findById(id);
+        if (campaign.status() != CampaignsStatusEnum.APPROVED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Campaign is not approved");
+        }
+        return campaign;
+    }
+
+    @GetMapping("/public/campaigns/{id}/top-donations")
+    public List<DonationListVm> getTopDonationsByCampaignId(@PathVariable Integer id) {
+        return donationService.getTopDonationsByCampaignId(id);
+    }
+
+    @GetMapping("public/campaigns/{id}/donations")
+    public List<DonationListVm> getDonationsByCampaignId(@PathVariable Integer id) {
+        return donationService.getDonationsByCampaignId(id);
     }
 
 }
