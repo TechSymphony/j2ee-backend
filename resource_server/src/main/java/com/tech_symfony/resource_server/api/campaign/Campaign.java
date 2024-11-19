@@ -5,12 +5,12 @@ import com.tech_symfony.resource_server.api.categories.Category;
 import com.tech_symfony.resource_server.system.model.NamedEntity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.*;
 import org.hibernate.mapping.List;
 
 import java.math.BigDecimal;

@@ -38,6 +38,7 @@ public class DonationClientController {
                     "Khi gọi API này, hóa đơn sẽ được update trạng thái thành `PAID` và thời gian thanh toán."
     )
     @PutMapping(value = "/{id}/payment/event")
+    @ResponseBody
     public void sendVerifyEvent(
             @PathVariable Integer id
     ) {
