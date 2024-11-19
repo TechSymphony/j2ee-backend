@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
 import org.hibernate.mapping.List;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,7 +28,7 @@ import java.util.Set;
 public class Campaign extends NamedEntity {
 
 	@Column(name = "code", unique = true)
-	private String code= "";
+	private String code = "";
 
 	@Column(name = "description", length = Integer.MAX_VALUE)
 	private String description = "";
@@ -45,13 +47,10 @@ public class Campaign extends NamedEntity {
 	@Column(name = "end_date")
 	private LocalDate endDate = LocalDate.now();
 
-//	@Column(name = "is_approved", columnDefinition = "BOOLEAN DEFAULT FALSE")
-//	private boolean isApproved = false;
 	@Enumerated(EnumType.ORDINAL)
 	@NotNull
 	@Column(name = "status")
 	private CampaignsStatusEnum status = CampaignsStatusEnum.WAITING;
-
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "beneficiary_id")
@@ -81,5 +80,10 @@ public class Campaign extends NamedEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id")
 	private Category category;
+
+	@ColumnDefault("false")
+	@NotNull
+	@Column(name = "disabled_at")
+	private boolean disabledAt;
 
 }

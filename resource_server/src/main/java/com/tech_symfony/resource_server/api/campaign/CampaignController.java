@@ -4,7 +4,6 @@ import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.api.donation.DonationService;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
 import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,15 +46,5 @@ public class CampaignController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCampaign(@PathVariable Integer id) {
         campaignService.delete(id);
-    }
-
-    @GetMapping("/{id}/top-donations")
-    public List<DonationListVm> getTopDonationsByCampaignId(@PathVariable Integer id) {
-        return donationService.getTopDonationsByCampaignId(id);
-    }
-
-    @GetMapping("/{id}/donations")
-    public List<DonationListVm> getDonationsByCampaignId(@PathVariable Integer id) {
-        return donationService.getDonationsByCampaignId(id);
     }
 }

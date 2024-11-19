@@ -45,7 +45,10 @@ public record CampaignPostVm(
         Category category,
 
         @NotNull(message = "Status cannot be null")
-        CampaignsStatusEnum status)
+        CampaignsStatusEnum status,
+
+        @NotNull(message = "Disabled cannot be null")
+        boolean disabledAt)
 {
 }
 
