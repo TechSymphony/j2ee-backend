@@ -107,7 +107,6 @@ class DefaultDonationService implements DonationService {
     public List<DonationListVm> getTopDonationsByCampaignId(int campaignId) {
         List<Donation> topDonations = donationRepository.getTopDonationsByCampaignId(campaignId);
         return topDonations.stream()
-                .limit(10)
                 .map(donationMapper::entityDonationListVm)
                 .collect(Collectors.toList());
     }
