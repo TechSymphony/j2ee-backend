@@ -9,11 +9,13 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
+@PreAuthorize("hasPermission('Category', 'MANGE_CATEGORIES')")
 public class CategoryController {
 
     private final CategoryService categoryService;

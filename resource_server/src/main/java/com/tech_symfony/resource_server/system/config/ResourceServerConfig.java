@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class ResourceServerConfig {
