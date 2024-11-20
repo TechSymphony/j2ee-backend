@@ -113,7 +113,7 @@ class DefaultDonationService implements DonationService {
 
     @Override
     public List<DonationListVm> getDonationsByCampaignId(int campaignId) {
-        List<Donation> donations = donationRepository.getDonationsByCampaignId(campaignId);
+        List<Donation> donations = donationRepository.getClientDonationsByCampaignId(campaignId);
         return donations.stream()
                 .sorted(Comparator.comparing(Donation::getDonationDate))
                 .limit(10)
@@ -173,7 +173,7 @@ class DefaultDonationService implements DonationService {
     @RabbitListener(queues = "payment_queue_dlx")
     @Transactional
     public void verify(DonationVerifyEventVm donationVerifyEventVm) {
-        Donation donation = donationRepository.findById(donationVerifyEventVm.donationId()).orElse(null);
+        Donation donation = donationRepository.findByIdForUpdateStatus(donationVerifyEventVm.donationId()).orElse(null);
         if (donation == null) return;
 
         try {
