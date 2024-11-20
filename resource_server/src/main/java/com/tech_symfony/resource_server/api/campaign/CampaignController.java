@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/campaigns")
+@PreAuthorize("hasPermission('Campaign', 'MANGE_CAMPAIGNS')")
 public class CampaignController {
 
     private final CampaignService campaignService;

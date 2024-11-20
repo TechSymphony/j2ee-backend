@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/beneficiaries")
+@PreAuthorize("hasPermission('Beneficiary', 'MANGE_BENEFICIARIES')")
 public class BeneficiaryController {
 
     private final BeneficiaryService beneficiaryService;
