@@ -117,6 +117,8 @@ public class SecurityConfig {
 								"/webjars/**",
 								"/images/**",
 								"/css/**",
+								"/fonts/**",
+								"/js/**",
 								"/assests/**",
 								"/actuator/**",
 								"/favicon.ico")
