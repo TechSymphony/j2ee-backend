@@ -141,6 +141,7 @@ public class SecurityConfig {
 		config.addAllowedMethod("*");
 
 		config.addAllowedOrigin(getFRONTEND_URL());
+		config.addAllowedOrigin("http://localhost:3000");
 		config.setAllowCredentials(true);
 		source.registerCorsConfiguration("/**", config);
 		return source;
