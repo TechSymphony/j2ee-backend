@@ -4,6 +4,7 @@ package com.tech_symfony.resource_server.api;
 import com.tech_symfony.resource_server.api.donation.Donation;
 import com.tech_symfony.resource_server.api.donation.DonationService;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
+import com.tech_symfony.resource_server.system.mail.EmailDetails;
 import com.tech_symfony.resource_server.system.mail.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +24,12 @@ public class DemoController {
 
 	@GetMapping("/mail")
 	public String mail() {
-		emailService.sendEmail(
-				"hi@email.com",
-				"Hello",
-				"Test"
-		);
+		EmailDetails emailDetails = EmailDetails.builder()
+				.to("hi@email.com")
+				.subject("Hello")
+				.body("Test")
+				.build();
+		emailService.handleQueueEmail(emailDetails);
 		return "Welcome to the resource server!";
 	}
 
