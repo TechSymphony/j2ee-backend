@@ -1,14 +1,19 @@
 package com.tech_symfony.resource_server.api.notification;
 
 import com.tech_symfony.resource_server.api.message.Message;
+import com.tech_symfony.resource_server.api.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 public interface NotificationService {
     void sendAll(Notification notification) throws MessagingException;
     void sendTo(Notification notification) throws MessagingException;
+    void sendMessagesToUser(User user);
+    Notification setAsRead(int notificationId);
 }
 
 @Service
@@ -27,6 +32,21 @@ class DefaultMessageService implements NotificationService {
     @Override
     public void sendTo(Notification notification) throws MessagingException {
         notificationRepository.save(notification);
-        simpMessagingTemplate.convertAndSend("/specific/" + notification.getUser().getId() + "/messages", notification);
+        simpMessagingTemplate.convertAndSend("/specific/" + notification.getUser().getUsername() + "/messages", notification);
+    }
+
+    @Override
+    public void sendMessagesToUser(User user) {
+        List<Notification> notifications = notificationRepository.findNotificationByUser(user);
+        for (Notification notification : notifications) {
+            simpMessagingTemplate.convertAndSend("/specific/" + user.getUsername() + "/messages", notification);
+        }
+    }
+
+    @Override
+    public Notification setAsRead(int notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).get();
+        notification.setRead(true);
+        return notificationRepository.save(notification);
     }
 }
