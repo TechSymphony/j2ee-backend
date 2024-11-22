@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface ImportExcelService {
-    public List<User> importStudents(MultipartFile file) throws IOException;
+    public List<User> importFrom(MultipartFile file, boolean isStudent) throws IOException;
 }
 
 @Service
@@ -31,7 +31,7 @@ class DefaultImportExcelService<T> implements ImportExcelService {
     private final UserRepository userRepository;
 
     @Override
-    public List<User> importStudents(MultipartFile file) throws IOException {
+    public List<User> importFrom(MultipartFile file, boolean isStudent) throws IOException {
 
         List<User> newUsers = new ArrayList<>();
 
@@ -60,7 +60,7 @@ class DefaultImportExcelService<T> implements ImportExcelService {
                         user.setFullName(fullName);
                         user.setEmail(row.getCell(7).getStringCellValue());
                         user.setUsername(row.getCell(1).getStringCellValue());
-                        user.setIsStudent(true);
+                        user.setIsStudent(isStudent);
                         user.setPassword("password");
                         if (user.getFullName().isEmpty()
                         || user.getEmail().isEmpty()

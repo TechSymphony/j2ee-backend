@@ -65,8 +65,8 @@ public class UserController {
 
     @PostMapping("/import/student")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<UserListVm> importStudents(@RequestParam("file") MultipartFile file) throws IOException {
-        return userService.importStudents(file);
+    public List<UserListVm> importStudents(@RequestParam("file") MultipartFile file, @RequestParam("isStudent") boolean isStudent) throws IOException {
+        return userService.importFrom(file, isStudent);
     }
 
     @GetMapping("/{id}/beneficiaries")
