@@ -1,29 +1,20 @@
 package com.tech_symfony.resource_server.api.donation;
 
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationExportVm;
-import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryDetailVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.*;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
-import com.tech_symfony.resource_server.api.user.AuthService;
+import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import jakarta.validation.Valid;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyPutVm;
 import com.tech_symfony.resource_server.commonlibrary.exception.AccessDeniedException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +37,7 @@ public class DonationController {
 
 
     @GetMapping("/report")
-    public Set<DonationStatis> getReportDonations(@RequestParam Map<String, String> allParams) {
+    public List<DonationStatisticVm> getReportDonations(@RequestParam Map<String, String> allParams) {
 //        DonationStatis donationStatis1 = new DonationStatis("01-01-2024", BigDecimal.valueOf(1000));
 //        DonationStatis donationStatis2 = new DonationStatis("02-01-2024", BigDecimal.valueOf(2000));
 //        DonationStatis donationStatis3 = new DonationStatis("03-01-2024", BigDecimal.valueOf(3000));
@@ -72,29 +63,45 @@ public class DonationController {
 
 
         // yearly
-        DonationStatis donationStatis1 = new DonationStatis("2024", BigDecimal.valueOf(1000));
-        DonationStatis donationStatis2 = new DonationStatis("2023", BigDecimal.valueOf(2000));
-        DonationStatis donationStatis3 = new DonationStatis("2022", BigDecimal.valueOf(3000));
-        DonationStatis donationStatis4 = new DonationStatis("2021", BigDecimal.valueOf(4000));
-        DonationStatis donationStatis5 = new DonationStatis("2020", BigDecimal.valueOf(5000));
-        DonationStatis donationStatis6 = new DonationStatis("2019", BigDecimal.valueOf(6000));
-        DonationStatis donationStatis7 = new DonationStatis("2018", BigDecimal.valueOf(7000));
-        DonationStatis donationStatis8 = new DonationStatis("2017", BigDecimal.valueOf(8000));
-        DonationStatis donationStatis9 = new DonationStatis("2016", BigDecimal.valueOf(9000));
-        DonationStatis donationStatis10 = new DonationStatis("2015", BigDecimal.valueOf(10000));
+//        DonationStatis donationStatis1 = new DonationStatis("2024", BigDecimal.valueOf(1000));
+//        DonationStatis donationStatis2 = new DonationStatis("2023", BigDecimal.valueOf(2000));
+//        DonationStatis donationStatis3 = new DonationStatis("2022", BigDecimal.valueOf(3000));
+//        DonationStatis donationStatis4 = new DonationStatis("2021", BigDecimal.valueOf(4000));
+//        DonationStatis donationStatis5 = new DonationStatis("2020", BigDecimal.valueOf(5000));
+//        DonationStatis donationStatis6 = new DonationStatis("2019", BigDecimal.valueOf(6000));
+//        DonationStatis donationStatis7 = new DonationStatis("2018", BigDecimal.valueOf(7000));
+//        DonationStatis donationStatis8 = new DonationStatis("2017", BigDecimal.valueOf(8000));
+//        DonationStatis donationStatis9 = new DonationStatis("2016", BigDecimal.valueOf(9000));
+//        DonationStatis donationStatis10 = new DonationStatis("2015", BigDecimal.valueOf(10000));
+//
+//        Set<DonationStatis> result = new HashSet<>();
+//        result.add(donationStatis1);
+//        result.add(donationStatis2);
+//        result.add(donationStatis3);
+//        result.add(donationStatis4);
+//        result.add(donationStatis5);
+//        result.add(donationStatis6);
+//        result.add(donationStatis7);
+//        result.add(donationStatis8);
+//        result.add(donationStatis9);
+//        result.add(donationStatis10);
 
-        Set<DonationStatis> result = new HashSet<>();
-        result.add(donationStatis1);
-        result.add(donationStatis2);
-        result.add(donationStatis3);
-        result.add(donationStatis4);
-        result.add(donationStatis5);
-        result.add(donationStatis6);
-        result.add(donationStatis7);
-        result.add(donationStatis8);
-        result.add(donationStatis9);
-        result.add(donationStatis10);
-        return result;
+        // Extract parameters
+        String toDateParam = allParams.get("period_lt");
+        String campaignIdParam = allParams.get("campaignId");
+        String groupByParam = allParams.getOrDefault("groupBy", "MONTH"); // Default to "MONTH"
+
+        // Validate and parse parameters
+        Instant fromDate = allParams.get("period_gt") != null
+                ? LocalDateTime.parse(allParams.get("period_gt") + " 00:00:00", JacksonConfig.DATE_FORMATTER).atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE)).toInstant()
+                : Instant.EPOCH;
+        Instant toDate = toDateParam != null ?
+                LocalDateTime.parse(allParams.get("period_lt") + " 23:59:59", JacksonConfig.DATE_FORMATTER).atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE)).toInstant()
+                : Instant.now();
+        Long campaignId = campaignIdParam != null ? Long.parseLong(campaignIdParam) : null;
+
+
+        return donationService.getReportByPeriod(fromDate, toDate, campaignId, groupByParam);
 //        DonationPage<DonationListVm> donationPage = donationService.findAll(allParams);
 //        return donationPage;
     }

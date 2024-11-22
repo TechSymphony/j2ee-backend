@@ -1,13 +1,16 @@
 package com.tech_symfony.resource_server.api.donation;
 
+import com.tech_symfony.resource_server.api.donation.viewmodel.DonationStatisticVm;
 import com.tech_symfony.resource_server.system.pagination.AggregatePaginationRepository;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,5 +33,24 @@ public interface DonationRepository extends JpaRepository<Donation, Integer>, Jp
     @Query("SELECT d FROM Donation d WHERE d.id = :id")
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Donation> findByIdForUpdateStatus(Integer id);
+
+    @Query("SELECT new com.tech_symfony.resource_server.api.donation.viewmodel.DonationStatisticVm(subquery.period, SUM(subquery.amountTotal) )" +
+            "FROM (SELECT " +
+            "        (CASE " +
+            "          WHEN :groupBy = 'MONTH' THEN TO_CHAR(d.donationDate, 'YYYY-MM') " +
+            "          WHEN :groupBy = 'YEAR' THEN TO_CHAR(d.donationDate, 'YYYY') " +
+            "          ELSE TO_CHAR(d.donationDate, 'YYYY-MM') " +
+            "        END) AS period, " +
+            "        d.amountTotal as amountTotal " +
+            "      FROM Donation d " +
+            "      WHERE d.donationDate BETWEEN :fromDate AND :toDate " +
+            "      AND (:campaignId IS NULL OR d.campaign.id = :campaignId)) subquery " +
+            "GROUP BY subquery.period ORDER BY period ")
+
+    List<DonationStatisticVm> getDonationsByPeriodWithFilters(
+            @Param("fromDate") Instant fromDate,
+            @Param("toDate") Instant toDate,
+            @Param("campaignId") Long campaignId,
+            @Param("groupBy") String groupBy);
 
 }
