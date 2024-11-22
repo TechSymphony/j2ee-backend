@@ -18,6 +18,7 @@ import java.time.Instant;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "notifications")
 public class Notification extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -33,6 +34,6 @@ public class Notification extends BaseEntity {
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @CreationTimestamp
-    @Column(name = "create_at")
-    private Instant createAt;
+    @Column(name = "created_at")
+    private Instant createdAt;
 }
