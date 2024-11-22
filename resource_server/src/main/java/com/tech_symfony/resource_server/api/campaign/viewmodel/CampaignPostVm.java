@@ -26,7 +26,7 @@ public record CampaignPostVm(
         @NotEmpty(message = "Code must not be empty")
         String code,
 
-        @Size(max = 255, message = "Description cannot be longer than 255 characters")
+        @NotEmpty(message = "Description must not be empty")
         String description,
 
         @NotNull(message = "Target amount cannot be null")
