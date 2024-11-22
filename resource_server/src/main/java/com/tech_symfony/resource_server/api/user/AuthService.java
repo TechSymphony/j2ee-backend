@@ -35,4 +35,8 @@ public class AuthService {
         String username = auth.getName();
         return userRepository.findByUsername(username);
     }
+
+    public User getCurrentUserWithSocketById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new AccessDeniedException(MessageCode.FORBIDDEN));
+    }
 }
