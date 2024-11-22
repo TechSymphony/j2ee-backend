@@ -19,7 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,9 +46,57 @@ public class DonationController {
 
 
     @GetMapping("/report")
-    public DonationPage<DonationListVm> getReportDonations(@RequestParam Map<String, String> allParams) {
-        DonationPage<DonationListVm> donationPage = donationService.findAll(allParams);
-        return donationPage;
+    public Set<DonationStatis> getReportDonations(@RequestParam Map<String, String> allParams) {
+//        DonationStatis donationStatis1 = new DonationStatis("01-01-2024", BigDecimal.valueOf(1000));
+//        DonationStatis donationStatis2 = new DonationStatis("02-01-2024", BigDecimal.valueOf(2000));
+//        DonationStatis donationStatis3 = new DonationStatis("03-01-2024", BigDecimal.valueOf(3000));
+//        DonationStatis donationStatis4 = new DonationStatis("04-01-2024", BigDecimal.valueOf(4000));
+//        DonationStatis donationStatis5 = new DonationStatis("05-01-2024", BigDecimal.valueOf(5000));
+//        DonationStatis donationStatis6 = new DonationStatis("06-01-2024", BigDecimal.valueOf(6000));
+//        DonationStatis donationStatis7 = new DonationStatis("07-01-2024", BigDecimal.valueOf(7000));
+//        DonationStatis donationStatis8 = new DonationStatis("08-01-2024", BigDecimal.valueOf(8000));
+//        DonationStatis donationStatis9 = new DonationStatis("09-01-2024", BigDecimal.valueOf(9000));
+//        DonationStatis donationStatis10 = new DonationStatis("10-01-2024", BigDecimal.valueOf(10000));
+
+//        monthly
+//        DonationStatis donationStatis1 = new DonationStatis("01-2024", BigDecimal.valueOf(1000));
+//        DonationStatis donationStatis2 = new DonationStatis("02-2024", BigDecimal.valueOf(2000));
+//        DonationStatis donationStatis3 = new DonationStatis("03-2024", BigDecimal.valueOf(3000));
+//        DonationStatis donationStatis4 = new DonationStatis("04-2024", BigDecimal.valueOf(4000));
+//        DonationStatis donationStatis5 = new DonationStatis("05-2024", BigDecimal.valueOf(5000));
+//        DonationStatis donationStatis6 = new DonationStatis("06-2024", BigDecimal.valueOf(6000));
+//        DonationStatis donationStatis7 = new DonationStatis("07-2024", BigDecimal.valueOf(7000));
+//        DonationStatis donationStatis8 = new DonationStatis("08-2024", BigDecimal.valueOf(8000));
+//        DonationStatis donationStatis9 = new DonationStatis("09-2024", BigDecimal.valueOf(9000));
+//        DonationStatis donationStatis10 = new DonationStatis("10-2024", BigDecimal.valueOf(10000));
+
+
+        // yearly
+        DonationStatis donationStatis1 = new DonationStatis("2024", BigDecimal.valueOf(1000));
+        DonationStatis donationStatis2 = new DonationStatis("2023", BigDecimal.valueOf(2000));
+        DonationStatis donationStatis3 = new DonationStatis("2022", BigDecimal.valueOf(3000));
+        DonationStatis donationStatis4 = new DonationStatis("2021", BigDecimal.valueOf(4000));
+        DonationStatis donationStatis5 = new DonationStatis("2020", BigDecimal.valueOf(5000));
+        DonationStatis donationStatis6 = new DonationStatis("2019", BigDecimal.valueOf(6000));
+        DonationStatis donationStatis7 = new DonationStatis("2018", BigDecimal.valueOf(7000));
+        DonationStatis donationStatis8 = new DonationStatis("2017", BigDecimal.valueOf(8000));
+        DonationStatis donationStatis9 = new DonationStatis("2016", BigDecimal.valueOf(9000));
+        DonationStatis donationStatis10 = new DonationStatis("2015", BigDecimal.valueOf(10000));
+
+        Set<DonationStatis> result = new HashSet<>();
+        result.add(donationStatis1);
+        result.add(donationStatis2);
+        result.add(donationStatis3);
+        result.add(donationStatis4);
+        result.add(donationStatis5);
+        result.add(donationStatis6);
+        result.add(donationStatis7);
+        result.add(donationStatis8);
+        result.add(donationStatis9);
+        result.add(donationStatis10);
+        return result;
+//        DonationPage<DonationListVm> donationPage = donationService.findAll(allParams);
+//        return donationPage;
     }
 
     @PutMapping(value = "/{id}/payment")
