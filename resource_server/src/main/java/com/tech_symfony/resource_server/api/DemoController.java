@@ -28,7 +28,6 @@ public class DemoController {
 	private  final DonationService donationService;
 	private final NotificationService notificationService;
 
-
 	@GetMapping("/mail")
 	public String mail() {
 		EmailDetails emailDetails = EmailDetails.builder()
