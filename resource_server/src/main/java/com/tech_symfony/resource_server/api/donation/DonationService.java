@@ -4,11 +4,7 @@ package com.tech_symfony.resource_server.api.donation;
 import com.tech_symfony.resource_server.api.campaign.CampaignService;
 import com.tech_symfony.resource_server.api.categories.CampaignNotAbleToDonateException;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationDetailVm;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationExportVm;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationPostVm;
-import com.tech_symfony.resource_server.api.donation.viewmodel.DonationVerifyEventVm;
+import com.tech_symfony.resource_server.api.donation.viewmodel.*;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -68,6 +64,8 @@ public interface DonationService {
 
     void sendEventVerifyClient(Integer id);
     FileSystemResource export(DonationExportVm donationExportVm) throws IOException;
+
+    List<DonationStatisticVm> getReportByPeriod(Instant fromDate, Instant toDate, Long campaignId, String groupBy);
 }
 
 @Service
@@ -282,5 +280,10 @@ class DefaultDonationService implements DonationService {
                     .collect(Collectors.toList());
         }
         return new FileSystemResource(exportPdfService.from(donations, "donations"));
+    }
+
+    @Override
+    public List<DonationStatisticVm> getReportByPeriod(Instant fromDate, Instant toDate, Long campaignId, String groupBy) {
+        return donationRepository.getDonationsByPeriodWithFilters(fromDate, toDate, campaignId, groupBy);
     }
 }
