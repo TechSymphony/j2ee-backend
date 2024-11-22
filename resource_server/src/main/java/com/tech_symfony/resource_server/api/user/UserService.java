@@ -50,7 +50,7 @@ public interface UserService {
     
     BasicUserDetailVm updateProfile(Integer id, BasicUserPostVm user);
 
-    List<UserListVm> importStudents(MultipartFile file) throws IOException;
+    List<UserListVm> importFrom(MultipartFile file, boolean isStudent) throws IOException;
 }
 
 @Service
@@ -158,8 +158,8 @@ class DefaultUserService implements UserService {
     }
 
 
-    public List<UserListVm> importStudents(MultipartFile file) throws IOException {
-        return importExcelService.importStudents(file)
+    public List<UserListVm> importFrom(MultipartFile file, boolean isStudent) throws IOException {
+        return importExcelService.importFrom(file, isStudent)
                 .stream()
                 .map(userMapper::enityToUserListVm)
                 .collect(Collectors.toList());
