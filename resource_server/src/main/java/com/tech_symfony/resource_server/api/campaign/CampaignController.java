@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.List;
@@ -21,7 +22,6 @@ import java.util.List;
 public class CampaignController {
 
     private final CampaignService campaignService;
-    private final DonationService donationService;
 
     @GetMapping
     public Page<CampaignListVm> getAllCampaigns(@RequestParam Map<String, String> allParams) {
@@ -35,18 +35,17 @@ public class CampaignController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CampaignDetailVm createCampaign(@Valid @RequestBody CampaignPostVm campaign) {
-        return campaignService.save(campaign);
+    public CampaignDetailVm createCampaign(@Valid @RequestPart("campaign") CampaignPostVm campaign, @RequestPart("image") MultipartFile image) throws Exception {
+        return campaignService.save(campaign, image);
     }
 
     @PutMapping("/{id}")
-    public CampaignDetailVm updateCampaign(@PathVariable Integer id, @Valid @RequestBody CampaignPostVm campaign) {
-        return campaignService.update(id, campaign);
+    public CampaignDetailVm updateCampaign(@PathVariable Integer id, @Valid @RequestPart("campaign") CampaignPostVm campaign, @RequestPart("image") MultipartFile image) throws Exception {
+        return campaignService.update(id, campaign, image);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCampaign(@PathVariable Integer id) {
-        campaignService.delete(id);
+    public void deleteCampaign(@PathVariable Integer id) {campaignService.delete(id);
     }
 }

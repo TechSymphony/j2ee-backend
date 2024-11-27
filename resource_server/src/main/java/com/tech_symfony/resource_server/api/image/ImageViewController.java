@@ -15,7 +15,7 @@ public class ImageViewController {
 
     private final ImageService imageService;
 
-    @GetMapping(value = "/image/{id}", produces = "image/*")
+    @GetMapping(value = "/image/{id}", produces = "image/png")
     @ResponseBody
     public FileSystemResource getImage(@PathVariable String id) throws Exception {
         return new FileSystemResource(imageService.getImage(id));

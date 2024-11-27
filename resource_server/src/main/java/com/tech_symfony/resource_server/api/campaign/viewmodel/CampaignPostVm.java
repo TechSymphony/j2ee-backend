@@ -48,7 +48,10 @@ public record CampaignPostVm(
         CampaignsStatusEnum status,
 
         @NotNull(message = "Disabled cannot be null")
-        boolean disabledAt)
+        boolean disabledAt,
+
+        @Nullable()
+        String shortDescription)
 {
 }
 
