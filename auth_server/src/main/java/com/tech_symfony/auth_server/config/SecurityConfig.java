@@ -5,7 +5,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.tech_symfony.auth_server.service.OAuth2UserService;
 import com.tech_symfony.auth_server.service.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,175 +59,182 @@ import java.util.function.Function;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-	@Value("${BASE_URL:}")
-	String BASE_URL;
-	@Value("${FRONTEND_URL:}")
-	String FRONTEND_URL;
+    private final OAuth2UserService oAuth2UserService;
 
-	public String getFRONTEND_URL() {
-		if (StringUtils.isEmpty(FRONTEND_URL)) {
-			FRONTEND_URL = "http://localhost:3000";
-		}
-		return FRONTEND_URL;
-	}
+    @Value("${BASE_URL:}")
+    String BASE_URL;
+    @Value("${FRONTEND_URL:}")
+    String FRONTEND_URL;
 
-	@Bean
-	@Order(1)
-	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
-			throws Exception {
-		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-		Function<OidcUserInfoAuthenticationContext, OidcUserInfo> userInfoMapper = (context) -> {
-			OidcUserInfoAuthenticationToken authentication = context.getAuthentication();
-			JwtAuthenticationToken principal = (JwtAuthenticationToken) authentication.getPrincipal();
+    public String getFRONTEND_URL() {
+        if (StringUtils.isEmpty(FRONTEND_URL)) {
+            FRONTEND_URL = "http://localhost:3000";
+        }
+        return FRONTEND_URL;
+    }
 
-			return new OidcUserInfo(principal.getToken().getClaims());
-		};
-		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-				.oidc((oidc) -> oidc
-						.userInfoEndpoint((userInfo) -> userInfo
-								.userInfoMapper(userInfoMapper)
-						)
-				);	// Enable OpenID Connect 1.0
-		http
-				// Redirect to the login page when not authenticated from the
-				// authorization endpoint
-				.exceptionHandling((exceptions) -> exceptions
-						.defaultAuthenticationEntryPointFor(
-								new LoginUrlAuthenticationEntryPoint("/login"),
-								new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-						)
-				)
-				// Accept access tokens for User Info and/or Client Registration
-				.oauth2ResourceServer((resourceServer) -> resourceServer
-						.jwt(Customizer.withDefaults()));
+    @Bean
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+            throws Exception {
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+        Function<OidcUserInfoAuthenticationContext, OidcUserInfo> userInfoMapper = (context) -> {
+            OidcUserInfoAuthenticationToken authentication = context.getAuthentication();
+            JwtAuthenticationToken principal = (JwtAuthenticationToken) authentication.getPrincipal();
 
-		return http.cors(Customizer.withDefaults()).build();
-	}
+            return new OidcUserInfo(principal.getToken().getClaims());
+        };
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .oidc((oidc) -> oidc
+                        .userInfoEndpoint((userInfo) -> userInfo
+                                .userInfoMapper(userInfoMapper)
+                        )
+                );    // Enable OpenID Connect 1.0
+        http
+                // Redirect to the login page when not authenticated from the
+                // authorization endpoint
+                .exceptionHandling((exceptions) -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                )
+                // Accept access tokens for User Info and/or Client Registration
+                .oauth2ResourceServer((resourceServer) -> resourceServer
+                        .jwt(Customizer.withDefaults()));
 
-	@Bean
-	@Order(2)
-	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
-			throws Exception {
-		http
-				.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers(
-								"/.well-known/openid-configuration",
-								"/login",
-								"/error",
-								"/webjars/**",
-								"/images/**",
-								"/css/**",
-								"/fonts/**",
-								"/js/**",
-								"/assests/**",
-								"/actuator/**",
-								"/favicon.ico")
-						.permitAll()
-						.anyRequest().authenticated()
-				)
-				// Form login handles the redirect to the login page from the
-				// authorization server filter chain
-//				.oauth2Login(oauth -> oauth.loginPage("/login"))
-				.formLogin(formLogin-> formLogin.loginPage("/login").permitAll() );
+        return http.cors(Customizer.withDefaults()).build();
+    }
 
-		return http.cors(Customizer.withDefaults()).build();
-	}
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+            throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(
+                                "/.well-known/openid-configuration",
+                                "/login",
+                                "/error",
+                                "/webjars/**",
+                                "/images/**",
+                                "/css/**",
+                                "/fonts/**",
+                                "/js/**",
+                                "/assests/**",
+                                "/actuator/**",
+                                "/favicon.ico")
+                        .permitAll()
+                        .anyRequest().authenticated()
+                )
+                // Form login handles the redirect to the login page from the
+                // authorization server filter chain
+//				.oauth2Login(oauth -> oauth.loginPage("/login").permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(infoEndpoint ->
+                                infoEndpoint.userService(oAuth2UserService))
+                        .loginPage("/login").permitAll())
+                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("*");
+        return http.cors(Customizer.withDefaults()).build();
+    }
 
-		config.addAllowedOrigin(getFRONTEND_URL());
-		config.addAllowedOrigin("http://localhost:3000");
-		config.setAllowCredentials(true);
-		source.registerCorsConfiguration("/**", config);
-		return source;
-	}
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
 
-	@Bean
-	public RegisteredClientRepository registeredClientRepository() {
-		RegisteredClient publicClient = RegisteredClient.withId(UUID.randomUUID().toString())
-				.clientId("public-client")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUri("https://oauth.pstmn.io/v1/browser-callback")
-				.redirectUri("https://oauth.pstmn.io/v1/callback")
-				.redirectUri("http://127.0.0.1:8080/login/oauth2/code/myoauth2")
-				.redirectUri("https://app.apidog.com/oauth2-browser-callback.html")
-				.redirectUri(BASE_URL + "/swagger-ui/oauth2-redirect.html")
-				// for frontend
-				.redirectUri(getFRONTEND_URL()+"/callback")
-				.redirectUri("http://localhost:3000/callback")
-				.postLogoutRedirectUri(getFRONTEND_URL())
-				.scope(OidcScopes.OPENID)
-				.scope(OidcScopes.PROFILE)
-				.tokenSettings(TokenSettings.builder()
-						.accessTokenTimeToLive(Duration.ofDays(1000))
-						.refreshTokenTimeToLive(Duration.ofDays(7))
-						.build())
-				.clientSettings(ClientSettings.builder()
-						.requireAuthorizationConsent(false)
-						.requireProofKey(true)
-						.build()
-				)
-				.build();
+        config.addAllowedOrigin(getFRONTEND_URL());
+        config.addAllowedOrigin("http://localhost:3000");
+        config.setAllowCredentials(true);
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
-		return new InMemoryRegisteredClientRepository(publicClient);
-	}
+    @Bean
+    public RegisteredClientRepository registeredClientRepository() {
+        RegisteredClient publicClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("public-client")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("https://oauth.pstmn.io/v1/browser-callback")
+                .redirectUri("https://oauth.pstmn.io/v1/callback")
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/myoauth2")
+                .redirectUri("https://app.apidog.com/oauth2-browser-callback.html")
+                .redirectUri(BASE_URL + "/swagger-ui/oauth2-redirect.html")
+                // for frontend
+                .redirectUri(getFRONTEND_URL() + "/callback")
+                .redirectUri("http://localhost:3000/callback")
+                .postLogoutRedirectUri(getFRONTEND_URL())
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofDays(1000))
+                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .build())
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(false)
+                        .requireProofKey(true)
+                        .build()
+                )
+                .build();
 
-
-	@Bean
-	public JWKSource<SecurityContext> jwkSource(
-			@Value("${jwt.key.id}") String id,
-			@Value("${jwt.key.private}") RSAPrivateKey privateKey,
-			@Value("${jwt.key.public}") RSAPublicKey publicKey) {
-		var rsa = new RSAKey.Builder(publicKey)
-				.privateKey(privateKey)
-				.keyID(id)
-				.build();
-		var jwk = new JWKSet(rsa);
-		return new ImmutableJWKSet<>(jwk);
-	}
+        return new InMemoryRegisteredClientRepository(publicClient);
+    }
 
 
-	@Bean
-	public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-		return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-	}
+    @Bean
+    public JWKSource<SecurityContext> jwkSource(
+            @Value("${jwt.key.id}") String id,
+            @Value("${jwt.key.private}") RSAPrivateKey privateKey,
+            @Value("${jwt.key.public}") RSAPublicKey publicKey) {
+        var rsa = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .keyID(id)
+                .build();
+        var jwk = new JWKSet(rsa);
+        return new ImmutableJWKSet<>(jwk);
+    }
 
-	@Bean
-	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().build();
-	}
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+    }
 
-	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsServiceImpl userDetailsService) throws Exception {
-		AuthenticationManagerBuilder authManagerBuilder =  http.getSharedObject(AuthenticationManagerBuilder.class);
-		authManagerBuilder
-				.userDetailsService(userDetailsService)
-				.passwordEncoder(passwordEncoder());
-		return authManagerBuilder.build();
-	}
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
+    }
 
-	@Bean
-	public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
-		return (context) -> {
-			if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-				context.getClaims().claims((claims) -> {
-					Set<String> permissions = AuthorityUtils.authorityListToSet(context.getPrincipal().getAuthorities());
-					claims.put("authorities", permissions);
-				});
-			}
-		};
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsServiceImpl userDetailsService) throws Exception {
+        AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authManagerBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+        return authManagerBuilder.build();
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
+        return (context) -> {
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+                context.getClaims().claims((claims) -> {
+                    Set<String> permissions = AuthorityUtils.authorityListToSet(context.getPrincipal().getAuthorities());
+                    claims.put("authorities", permissions);
+                });
+            }
+        };
+    }
 }

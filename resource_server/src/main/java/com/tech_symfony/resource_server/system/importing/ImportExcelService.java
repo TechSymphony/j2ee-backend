@@ -8,12 +8,14 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ public interface ImportExcelService {
 class DefaultImportExcelService<T> implements ImportExcelService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> importFrom(MultipartFile file, boolean isStudent) throws IOException {
@@ -61,7 +64,11 @@ class DefaultImportExcelService<T> implements ImportExcelService {
                         user.setEmail(row.getCell(7).getStringCellValue());
                         user.setUsername(row.getCell(1).getStringCellValue());
                         user.setIsStudent(isStudent);
-                        user.setPassword("password");
+                        user.setPassword(passwordEncoder.encode("password"));
+                        user.setEnabled(true);
+                        user.setCreatedAt(Instant.now());
+                        user.setUpdatedAt(Instant.now());
+
                         if (user.getFullName().isEmpty()
                         || user.getEmail().isEmpty()
                         || user.getUsername().isEmpty()
