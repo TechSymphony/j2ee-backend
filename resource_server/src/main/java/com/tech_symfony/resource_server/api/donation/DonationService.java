@@ -225,7 +225,6 @@ class DefaultDonationService implements DonationService {
     @Transactional
     public DonationDetailVm updateStatus(Donation donation, DonationStatus donationStatus) {
         donation.setStatus(donationStatus);
-        donationRepository.save(donation);
 
         return donationMapper.entityToDonationDetailVm(donationRepository.save(donation));
     }
