@@ -29,10 +29,12 @@ public class Category extends NamedEntity {
     private Category parent;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
+    @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
+    @CreationTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
 
