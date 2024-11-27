@@ -10,16 +10,14 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.*;
-import org.hibernate.mapping.List;
+
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
-import java.util.Set;
+
 
 @Entity
 @Table(name = "campaigns")
@@ -34,11 +32,11 @@ public class Campaign extends NamedEntity {
 	private String description = "";
 
 	@DecimalMin("0.00")
-	@Column(name = "target_amount", precision = 10, scale = 2)
+	@Column(name = "target_amount", precision = 15, scale = 2)
 	private BigDecimal targetAmount = BigDecimal.ZERO;
 
 	@DecimalMin("0.00")
-	@Column(name = "current_amount", precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0")
+	@Column(name = "current_amount", precision = 15, scale = 2, columnDefinition = "DECIMAL(15,2) DEFAULT 0")
 	private BigDecimal currentAmount = BigDecimal.ZERO;
 
 	@Column(name = "start_date")
@@ -86,4 +84,9 @@ public class Campaign extends NamedEntity {
 	@Column(name = "disabled_at")
 	private boolean disabledAt;
 
+	@Column(name = "short_description", length = Integer.MAX_VALUE)
+	private String shortDescription = "";
+
+	@Column(name = "image", length = Integer.MAX_VALUE)
+ 	private String image =  "";
 }

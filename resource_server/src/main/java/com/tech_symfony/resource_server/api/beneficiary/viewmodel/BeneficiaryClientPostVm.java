@@ -13,7 +13,10 @@ public record BeneficiaryClientPostVm(
         String situationDetail,
 
         @NotNull(message = "supportReceived cannot be null")
-        BigDecimal supportReceived
+        BigDecimal supportReceived,
+
+        @NotNull(message = "Status cannot be null")
+        BeneficiaryStatusEnum  verificationStatus
 )
 {
 }

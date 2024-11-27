@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 public record CampaignListVm(int id, String name, String description, BigDecimal targetAmount, BigDecimal currentAmount,
                              LocalDate startDate, LocalDate endDate, CampaignsStatusEnum status, String code,
-                             Beneficiary beneficiary, Category category, boolean disabledAt, boolean isReachTarget, Instant createAt,
+                             Beneficiary beneficiary, Category category, boolean disabledAt, boolean isReachTarget,
+                             Instant createAt, String image, String shortDescription,
                              Integer numberOfDonations) {
 }

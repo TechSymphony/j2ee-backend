@@ -5,12 +5,15 @@ import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.image.ImageService;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.SpringVersion;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -20,9 +23,9 @@ public interface CampaignService {
 
     CampaignDetailVm findById(Integer id);
 
-    CampaignDetailVm save(CampaignPostVm campaign);
+    CampaignDetailVm save(CampaignPostVm campaign, MultipartFile image) throws Exception;
 
-    CampaignDetailVm update(Integer id, CampaignPostVm campaign);
+    CampaignDetailVm update(Integer id, CampaignPostVm campaign, MultipartFile image) throws Exception;
 
     Boolean delete(Integer id);
 
@@ -41,6 +44,7 @@ class DefaultCampaignService implements CampaignService {
     private final CampaignMapper campaignMapper;
     private final SpecificationBuilderPagination<Campaign> specificationBuilder;
     private final PaginationCommand<Campaign, CampaignListVm> paginationCommand;
+    private final ImageService imageService;
 
     @Override
     public Page<CampaignListVm> findAll(Map<String, String> params) {
@@ -55,22 +59,30 @@ class DefaultCampaignService implements CampaignService {
     }
 
     @Override
-    public CampaignDetailVm save(CampaignPostVm campaign) {
-        Campaign newCampain = campaignMapper.campaignPostVmToCampaign(campaign);
-        Campaign savedCampaign = campaignRepository.save(newCampain);
+    public CampaignDetailVm save(CampaignPostVm campaign, MultipartFile image) throws Exception {
+        Campaign newCampaign = campaignMapper.campaignPostVmToCampaign(campaign);
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = imageService.sendImage(image);
+            newCampaign.setImage(imageUrl);
+        }
+        Campaign savedCampaign = campaignRepository.save(newCampaign);
         return campaignMapper.entityToCampaignDetailVm(savedCampaign);
     }
 
+
+
     @Override
-    public CampaignDetailVm update(Integer id, CampaignPostVm campaign) {
+    public CampaignDetailVm update(Integer id, CampaignPostVm campaign, MultipartFile image) throws Exception {
         Campaign existingCampaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
 
-        Campaign campaign1 = campaignMapper.updateCampaignFromDto(campaign, existingCampaign);
-        Campaign updatedCampaign = campaignRepository.save(
-                campaign1
-        );
-        return campaignMapper.entityToCampaignDetailVm(updatedCampaign);
+        Campaign updatedCampaign = campaignMapper.updateCampaignFromDto(campaign, existingCampaign);
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = imageService.sendImage(image);
+            updatedCampaign.setImage(imageUrl);
+        }
+        Campaign savedCampaign = campaignRepository.save(updatedCampaign);
+        return campaignMapper.entityToCampaignDetailVm(savedCampaign);
     }
 
     @Override
