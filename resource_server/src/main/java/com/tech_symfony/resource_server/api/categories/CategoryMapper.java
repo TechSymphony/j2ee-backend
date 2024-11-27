@@ -5,6 +5,7 @@ import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryListVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryMenuVm;
 import com.tech_symfony.resource_server.api.categories.viewmodel.CategoryPostVm;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
@@ -14,7 +15,11 @@ public interface CategoryMapper {
 	CategoryListVm entityToCategoryListVm(Category category);
 	CategoryMenuVm entityToCategoryMenuVm(Category category);
 
-	Category updateCategoryFromDto(CategoryPostVm categoryPostVm, @MappingTarget Category category);
+
+	@Mapping(source = "parent", target = "parent")
 	Category categoryPostVmToCategory(CategoryPostVm categoryPostVm);
+
+	@Mapping(source = "parent", target = "parent")
+	Category updateCategoryFromDto(CategoryPostVm categoryPostVm, @MappingTarget Category category);
 
 }
