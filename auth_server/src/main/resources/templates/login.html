@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
     <!--===============================================================================================-->
     <link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/fonts/font-awesome-4.7.0/css/font-awesome.css">
+
     <!--===============================================================================================-->
     <link rel="stylesheet" type="text/css" href="css/util.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
@@ -86,8 +88,11 @@
                     </div>
 
                     <!-- Link quên mật khẩu -->
-                    <div class="flex-sb-m w-full p-b-30">
-                            <a href="#" >
+                    <div class="w-full p-b-30">
+                            <a href="#" class="float-left" >
+                                Đăng ký tài khoản
+                            </a>
+                            <a href="#" class="float-lg-right" >
                                 Quên mật khẩu?
                             </a>
                     </div>
@@ -98,13 +103,18 @@
                             Đăng nhập
                         </button>
                     </div>
+                    <div class="flex-col-c w-full mt-3">
+                        <span class="text-center w-full">
+                            Hoặc
+                        </span>
+                        <a th:href="@{/oauth2/authorization/google}" class="btn btn-warning m-3 fa fa-google w-full"> Tiếp tục với google </a>
 
-                    <!-- Đăng nhập qua mạng xã hội -->
-                    <div class="flex-sb-m w-full p-t-20">
-                        <a th:href="@{/oauth2/authorization/google}" class="social-login__icon fab fa-google"></a>
-                        <a th:href="@{/oauth2/authorization/facebook}" class="social-login__icon fab fa-facebook"></a>
-                        <a th:href="@{/oauth2/authorization/github}" class="social-login__icon fab fa-github"></a>
                     </div>
+<!--                    &lt;!&ndash; Đăng nhập qua mạng xã hội &ndash;&gt;-->
+<!--                    <div class="flex-sb-m w-full p-t-20">-->
+<!--                        <a th:href="@{/oauth2/authorization/facebook}" class="social-login__icon fa fa-facebook"></a>-->
+<!--                        <a th:href="@{/oauth2/authorization/github}" class="social-login__icon fa fa-github"></a>-->
+<!--                    </div>-->
                 </form>
             </div>
         </div>
