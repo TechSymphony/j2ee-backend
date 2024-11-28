@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface DonationRepository extends JpaRepository<Donation, Integer>, JpaSpecificationExecutor<Donation>, AggregatePaginationRepository<Donation> {
     // Query 1: Lấy top 10 donations theo amountTotal và donationDate
     @Query("SELECT d FROM Donation d WHERE d.campaign.id = :campaignId AND d.donor is NOT NULL " +
-            "AND d.isAnonymous = FALSE ORDER BY d.amountTotal DESC, d.donationDate DESC")
+            "AND d.isAnonymous = FALSE ORDER BY d.amountTotal DESC")
     List<Donation> getTopDonationsByCampaignId(Integer campaignId);
 
     // Query 2: Lấy tất cả donations, sắp xếp theo donationDate

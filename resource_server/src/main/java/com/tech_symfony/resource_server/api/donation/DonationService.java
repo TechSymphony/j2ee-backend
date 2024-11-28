@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -273,11 +274,30 @@ class DefaultDonationService implements DonationService {
                     .filter(donation -> donation.getCampaign().getId() == donationExportVm.campaign())
                     .collect(Collectors.toList());
         }
-        if (donationExportVm.type() != null && donationExportVm.type().equals("student_only")) {
+
+        if (donationExportVm.isAnonymous() == false) {
+            donations = donations.stream()
+                    .filter(donation -> donation.isAnonymous() == false)
+                    .collect(Collectors.toList());
+        }
+
+        donations = donations.stream()
+                .filter(donation ->
+                        donation.getDonationDate().equals(donationExportVm.from())
+                                || donation.getDonationDate().equals(donationExportVm.to())
+                                || (donation.getDonationDate().isAfter(
+                                        donationExportVm.from().atStartOfDay().toInstant(ZoneOffset.of("+7")))
+                                && donation.getDonationDate().isBefore(
+                                        donationExportVm.to().atStartOfDay().toInstant(ZoneOffset.of("+7"))
+                                ))
+                ).collect(Collectors.toList());
+
+        if (donationExportVm.studentOnly() == true) {
             donations = donations.stream()
                     .filter(donation -> donation.getDonor().getIsStudent())
                     .collect(Collectors.toList());
         }
+
         return new FileSystemResource(exportPdfService.from(donations, "donations"));
     }
 
