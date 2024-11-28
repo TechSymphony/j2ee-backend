@@ -1,10 +1,10 @@
-server:
-  ssl:
-    key-store-type: PKCS12  # The format used for the keystore. Use "JKS" for JKS files
-    key-store: classpath:keystore/key.p12  # The path to the keystore containing the certificate
-    key-store-password: password  # The password used to generate the certificate
-    key-alias: key  # The alias mapped to the certificate
-    enabled: true
-trust:
-  store: classpath:keystore/key.p12  # Trust store location
-  store-password: password  # Trust store password
+#server:
+#  ssl:
+#    key-store-type: PKCS12  # The format used for the keystore. Use "JKS" for JKS files
+#    key-store: classpath:keystore/key.p12  # The path to the keystore containing the certificate
+#    key-store-password: password  # The password used to generate the certificate
+#    key-alias: key  # The alias mapped to the certificate
+#    enabled: true
+#trust:
+#  store: classpath:keystore/key.p12  # Trust store location
+#  store-password: password  # Trust store password
