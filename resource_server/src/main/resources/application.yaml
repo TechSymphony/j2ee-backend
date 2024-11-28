@@ -8,4 +8,4 @@
 #---
 spring:
   profiles:
-    active: common, queue, https, mail
+    active: common, queue, mail
