@@ -37,9 +37,9 @@ public interface DonationRepository extends JpaRepository<Donation, Integer>, Jp
     @Query("SELECT new com.tech_symfony.resource_server.api.donation.viewmodel.DonationStatisticVm(subquery.period, SUM(subquery.amountTotal) )" +
             "FROM (SELECT " +
             "        (CASE " +
-            "          WHEN :groupBy = 'MONTH' THEN TO_CHAR(d.donationDate, 'YYYY-MM') " +
+            "          WHEN :groupBy = 'MONTH' THEN TO_CHAR(d.donationDate, 'MM-YYYY') " +
             "          WHEN :groupBy = 'YEAR' THEN TO_CHAR(d.donationDate, 'YYYY') " +
-            "          ELSE TO_CHAR(d.donationDate, 'YYYY-MM') " +
+            "          ELSE TO_CHAR(d.donationDate, 'DD-MM-YYYY') " +
             "        END) AS period, " +
             "        d.amountTotal as amountTotal " +
             "      FROM Donation d " +
