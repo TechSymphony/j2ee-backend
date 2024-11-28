@@ -23,7 +23,13 @@ public record UserPostVm(
         Role role,
 
         @NotEmpty(message = "Username must not be empty")
-        String username
+        String username,
+
+        @NotNull(message = "Is enabled must not be null")
+        boolean enabled,
+
+        @NotNull(message = "Is student must not be null")
+        boolean isStudent
 )
 {
 }

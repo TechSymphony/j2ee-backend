@@ -84,10 +84,12 @@ class DefaultUserService implements UserService {
     @Override
     public UserDetailVm save(UserPostVm user) {
         User newUser = userMapper.userPostVmToUser(user);
-        newUser.setPassword(passwordEncoder.encode("password"));
+        String password = randomPasswordService.generatePassword();
+        newUser.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save((newUser));
 
-        // TODO: send mail
+        emailService.sendEmail(newUser.getEmail(), "Tài khoản đã được khởi tạo",
+                "Tài khoản đã được khởi tạo thành công, mật khẩu là: " + password);
 
         return userMapper.enityToUserDetailVm(savedUser);
     }
@@ -120,7 +122,7 @@ class DefaultUserService implements UserService {
         String password = randomPasswordService.generatePassword();
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        emailService.sendEmail(user.getEmail(), "Reset Password", "Your password has been reset to '"+password+"'");
+        emailService.sendEmail(user.getEmail(), "Đã đặt lại mật khẩu", "Mật khẩu đã được đặt lại thành: "+password);
         return true;
     }
 

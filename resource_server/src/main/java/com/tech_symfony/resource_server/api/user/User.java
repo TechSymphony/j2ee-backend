@@ -59,6 +59,14 @@ public class User extends BaseEntity {
     @Column(name = "enabled")
     private Boolean enabled;
 
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled( boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Size(max = 255)
     @NotNull
     @Column(name = "username", nullable = false, unique = true)
