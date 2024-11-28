@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/donations")
-@PreAuthorize("hasPermission('Donation', 'MANGE_DONATIONS')")
+@PreAuthorize("hasPermission('Donation', 'MANAGE_DONATIONS')")
 public class DonationController {
 
     private final DonationService donationService;

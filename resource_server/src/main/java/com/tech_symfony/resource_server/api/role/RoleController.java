@@ -19,7 +19,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/roles")
-@PreAuthorize("hasPermission('Role', 'MANGE_ROLES')")
+@PreAuthorize("hasPermission('Role', 'MANAGE_ROLES')")
 public class RoleController {
 
     private final RoleService roleService;

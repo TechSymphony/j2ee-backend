@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
-@PreAuthorize("hasPermission('Category', 'MANGE_CATEGORIES')")
+@PreAuthorize("hasPermission('Category', 'MANAGE_CATEGORIES')")
 public class CategoryController {
 
     private final CategoryService categoryService;

@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/beneficiaries")
-@PreAuthorize("hasPermission('Beneficiary', 'MANGE_BENEFICIARIES')")
+@PreAuthorize("hasPermission('Beneficiary', 'MANAGE_BENEFICIARIES')")
 public class BeneficiaryController {
 
     private final BeneficiaryService beneficiaryService;

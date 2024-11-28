@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/campaigns")
-@PreAuthorize("hasPermission('Campaign', 'MANGE_CAMPAIGNS')")
+@PreAuthorize("hasPermission('Campaign', 'MANAGE_CAMPAIGNS')")
 public class CampaignController {
 
     private final CampaignService campaignService;
