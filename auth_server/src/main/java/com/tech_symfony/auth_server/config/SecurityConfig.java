@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.tech_symfony.auth_server.service.OAuth2UserService;
 import com.tech_symfony.auth_server.service.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +46,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -209,7 +212,34 @@ public class SecurityConfig {
 
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+
+            if (request.isSecure()) {
+                // Lấy scheme (http hoặc https)
+                String scheme = request.getScheme();
+
+                // Lấy domain (host name)
+                String domain = request.getServerName();
+
+                // Lấy port
+                int port = request.getServerPort();
+
+                // Xây dựng URL đầy đủ
+                String fullUrl = scheme + "://" + domain + (port == 80 || port == 443 ? "" : ":" + port);
+
+                return AuthorizationServerSettings.builder()
+                        .issuer(fullUrl)
+                        .build();
+            }
+        }
+
+        // Default issuer
+        return AuthorizationServerSettings
+                .builder()
+                .build();
     }
 
     @Bean
@@ -237,4 +267,5 @@ public class SecurityConfig {
             }
         };
     }
+
 }

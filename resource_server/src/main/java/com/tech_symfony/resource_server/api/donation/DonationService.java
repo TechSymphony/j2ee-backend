@@ -5,6 +5,8 @@ import com.tech_symfony.resource_server.api.campaign.CampaignService;
 import com.tech_symfony.resource_server.api.categories.CampaignNotAbleToDonateException;
 import com.tech_symfony.resource_server.api.donation.constant.DonationStatus;
 import com.tech_symfony.resource_server.api.donation.viewmodel.*;
+import com.tech_symfony.resource_server.api.notification.Notification;
+import com.tech_symfony.resource_server.api.notification.NotificationService;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
@@ -83,6 +85,7 @@ class DefaultDonationService implements DonationService {
     private final PaginationCommand<Donation, DonationListVm> paginationCommand;
     private final CampaignService campaignService;
     private final CacheManager cacheManager;
+    private final NotificationService notificationService;
 
     private final RabbitTemplate rabbitTemplate;
     @Value("${rabbitmq.exchange.payment.name}")
@@ -149,6 +152,14 @@ class DefaultDonationService implements DonationService {
         Timer timer = new Timer();
         timer.schedule(new HandleUnusedBillDonationTask(this, new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId())), vnpayConfig.exprationTime);
 
+        if(donation.getDonor() != null) {
+            Notification notification = new Notification();
+            notification.setMessage("Chiến dịch " + campaignService.findById(donationPostVm.campaign().getId()).name()  + " đang chờ quyên góp");
+            notification.setUser(donation.getDonor());
+
+            notificationService.sendTo(notification);
+        }
+
         return savedDonation;
     }
 
@@ -185,6 +196,13 @@ class DefaultDonationService implements DonationService {
                 donation.setDonationDate(Instant.now());
 
                 this.updateSuccessDonationAndAmountTotalCampaign(donation, donationVerifyEventVm.campaignId());
+                if(donation.getDonor() != null) {
+                    Notification notification = new Notification();
+                    notification.setMessage("Cảm ơn sự hỗ trợ của bạn cho chiến dịch " + campaignService.findById(donationVerifyEventVm.campaignId()).name());
+                    notification.setUser(donation.getDonor());
+
+                    notificationService.sendTo(notification);
+                }
             }
 
         } catch (TransactionException e) {
