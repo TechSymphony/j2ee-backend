@@ -1,7 +1,7 @@
 server:
   port: ${ENV_PORT}
 
-spring:
+  forward-headers-strategy: native
   flyway:
     out-of-order: true
     baseline-version : 0
