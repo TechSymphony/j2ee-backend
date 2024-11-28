@@ -30,7 +30,7 @@ public class Notification extends BaseEntity {
 
     @Column(name = "is_read")
     @ColumnDefault("false")
-    private boolean isRead;
+    private boolean isRead = false;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @CreationTimestamp
