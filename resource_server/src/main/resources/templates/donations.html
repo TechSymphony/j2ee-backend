@@ -7,26 +7,43 @@
         body {
             font-family: DejaVu Sans;
         }
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 1em;
+        }
+        th {
+            background: #4A3C8C;
+            color: white;
+        }
+        h1 {
+            text-align: center
+        }
     </style>
 </head>
 <body>
 <h1>Danh sách quyên góp</h1>
-<table border="1">
+<p><span th:text="${list[0].campaign.name == null ? 'Danh sách quyên góp rỗng' : 'Chiến dịch: ' + list[0].campaign.name}"></span></p>
+<p>Ngày xuất danh sách: <span th:text="${#dates.format(#dates.createNow(), 'HH:mm dd/MM/yyyy ')}"></span> </p>
+<table border="1" th:if="${list[0]}">
     <thead>
     <tr>
         <th>STT</th>
-        <th>Mã người dùng</th>
+        <th>Tên người dùng</th>
         <th>Họ tên</th>
         <th>Số tiền</th>
-        <th>Ngày</th>
+        <th>Nội dung</th>
+        <th>Thời gian</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="donation, iStat : ${list}">
         <td th:text="${iStat.count}"></td>
-        <td th:text="${donation.donor.id}"></td>
-        <td th:text="${donation.donor.fullName}"></td>
+        <td th:text="${donation.donor.username == null ? 'X' : donation.donor.username}"></td>
+        <td th:text="${donation.donor.fullName == null ? 'Ẩn danh' : donation.donor.fullName}"></td>
         <td th:text="${donation.amountTotal}"></td>
+        <td th:text="${donation.message}"></td>
         <td th:text="${#temporals.format(donation.donationDate, 'hh:mm:ss dd-MM-yyyy')}"></td>
     </tr>
     </tbody>

@@ -274,6 +274,13 @@ class DefaultDonationService implements DonationService {
                     .filter(donation -> donation.getCampaign().getId() == donationExportVm.campaign())
                     .collect(Collectors.toList());
         }
+
+        if (donationExportVm.isAnonymous() == false) {
+            donations = donations.stream()
+                    .filter(donation -> donation.isAnonymous() == false)
+                    .collect(Collectors.toList());
+        }
+
         donations = donations.stream()
                 .filter(donation ->
                         donation.getDonationDate().equals(donationExportVm.from())
@@ -284,11 +291,13 @@ class DefaultDonationService implements DonationService {
                                         donationExportVm.to().atStartOfDay().toInstant(ZoneOffset.of("+7"))
                                 ))
                 ).collect(Collectors.toList());
+
         if (donationExportVm.studentOnly() == true) {
             donations = donations.stream()
                     .filter(donation -> donation.getDonor().getIsStudent())
                     .collect(Collectors.toList());
         }
+
         return new FileSystemResource(exportPdfService.from(donations, "donations"));
     }
 
