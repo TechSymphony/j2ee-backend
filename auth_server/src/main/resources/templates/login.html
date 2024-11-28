@@ -20,6 +20,57 @@
           rel="stylesheet">
     <title>Đăng nhập</title>
 
+    <style>
+        .btn {
+            width: 100%;
+            padding: 10px;
+
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .container-login100-form-btn button{
+                        background-color: #d42a87;
+        }
+        .container-login100-form-btn button:hover {
+            background-color: #ba246f;
+        }
+        .wrap-input100 label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .wrap-input100 .input100 {
+
+            width: 100%;
+            padding: 10px;
+
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .wrap-input100 .input100:focus {
+            border-color: #d42a87;
+            outline: none;
+            box-shadow: 0 0 5px rgba(212, 42, 135, 0.5);
+        }
+        .btn-warning{
+            background-color: #007bff;
+            color: #fff
+        }
+        .btn-warning:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        .link-modify a:hover {
+            color: #f472b6;
+        }
+    </style>
+
     <!--        <link rel="stylesheet" th:href="@{/css/login.css}">-->
 </head>
 <body>
@@ -88,7 +139,7 @@
                     </div>
 
                     <!-- Link quên mật khẩu -->
-                    <div class="w-full p-b-30">
+                    <div class="link-modify w-full p-b-30 m-b-15">
                             <a href="#" class="float-left" >
                                 Đăng ký
                             </a>
