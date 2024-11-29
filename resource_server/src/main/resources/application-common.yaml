@@ -1,5 +1,6 @@
 server:
   port: ${ENV_PORT}
+  forward-headers-strategy: native
 
 spring:
   jackson:
