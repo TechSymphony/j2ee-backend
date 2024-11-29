@@ -175,7 +175,7 @@ class DefaultDonationService implements DonationService {
             notification.setMessage("Chiến dịch " + campaignService.findById(donationPostVm.campaign().getId()).name()
                     + "đang chờ quyên góp "
                     + "<a style=\"text-decoration: underline; color: blue;\" href=\""
-                    + getFullDomain()
+                    + donation.getPaymentUrl()
                     + "\"> tại đây </a>"
             );
             notification.setUser(donation.getDonor());
