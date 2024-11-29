@@ -2,6 +2,7 @@ package com.tech_symfony.resource_server.api.notification;
 
 import com.tech_symfony.resource_server.api.message.Message;
 import com.tech_symfony.resource_server.api.user.User;
+import com.tech_symfony.resource_server.api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -14,6 +15,7 @@ public interface NotificationService {
     void sendTo(Notification notification) throws MessagingException;
     void sendMessagesToUser(User user);
     Notification setAsRead(int notificationId);
+    List<Notification> getNotificationsByUserName(String userName);
 }
 
 @Service
@@ -21,6 +23,14 @@ public interface NotificationService {
 class DefaultMessageService implements NotificationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public List<Notification> getNotificationsByUserName(String username) {
+        System.out.println(username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return notificationRepository.findNotificationByUser(user);
+    }
 
     @Override
     public void sendAll(Notification notification) throws MessagingException {

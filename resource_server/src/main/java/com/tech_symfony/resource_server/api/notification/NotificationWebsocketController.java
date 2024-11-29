@@ -1,18 +1,16 @@
 package com.tech_symfony.resource_server.api.notification;
 
-import com.tech_symfony.resource_server.api.message.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/notifications")
-public class NotificationController {
+@RequestMapping("/notifications_websocket")
+public class NotificationWebsocketController {
 
     private final NotificationService notificationService;
 
