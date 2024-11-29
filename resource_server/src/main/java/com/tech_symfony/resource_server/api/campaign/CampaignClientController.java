@@ -25,6 +25,7 @@ public class CampaignClientController {
     @GetMapping("/public/campaigns")
     public Page<CampaignListVm> getAllCampaigns(@RequestParam Map<String, String> allParams) {
         allParams.put("status", String.valueOf(CampaignsStatusEnum.APPROVED));
+        allParams.put("disabledAt", "false");
 
         // only show campaign that started
         allParams.put("startDate_lte", LocalDateTime.now().format(JacksonConfig.DATE_FORMATTER));
