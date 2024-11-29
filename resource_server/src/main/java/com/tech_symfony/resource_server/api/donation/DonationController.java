@@ -94,10 +94,26 @@ public class DonationController {
         // Validate and parse parameters
         Instant fromDate = allParams.get("period_gt") != null
                 ? LocalDateTime.parse(allParams.get("period_gt") + " 00:00:00", JacksonConfig.DATE_FORMATTER).atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE)).toInstant()
-                : Instant.EPOCH;
+                : LocalDateTime.now()
+                .withMonth(1)  // Set the month to January
+                .withDayOfMonth(1)  // Set the day to 1
+                .withHour(0)  // Set the hour to 00:00
+                .withMinute(0)  // Set the minute to 00
+                .withSecond(0)  // Set the second to 00
+                .atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE))
+                .toInstant();
+
         Instant toDate = toDateParam != null ?
                 LocalDateTime.parse(allParams.get("period_lt") + " 23:59:59", JacksonConfig.DATE_FORMATTER).atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE)).toInstant()
-                : Instant.now();
+                : LocalDateTime.now()
+                .withMonth(12)  // Set the month to December
+                .withDayOfMonth(31)  // Set the day to 31
+                .withHour(23)  // Set the hour to 23:59
+                .withMinute(59)  // Set the minute to 59
+                .withSecond(59)  // Set the second to 59
+                .atZone(ZoneId.of(JacksonConfig.MY_TIME_ZONE))
+                .toInstant();
+
         Long campaignId = campaignIdParam != null ? Long.parseLong(campaignIdParam) : null;
 
 

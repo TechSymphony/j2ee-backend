@@ -10,12 +10,14 @@ import com.tech_symfony.resource_server.api.notification.NotificationService;
 import com.tech_symfony.resource_server.api.user.AuthService;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
+import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import com.tech_symfony.resource_server.system.export.ExportPdfService;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
 import com.tech_symfony.resource_server.system.payment.vnpay.TransactionException;
 import com.tech_symfony.resource_server.system.payment.vnpay.VnpayConfig;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,19 +28,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public interface DonationService {
@@ -66,6 +64,7 @@ public interface DonationService {
     DonationDetailVm updateSuccessDonationAndAmountTotalCampaign(Donation donation, Integer idCampaign);
 
     void sendEventVerifyClient(Integer id);
+
     FileSystemResource export(DonationExportVm donationExportVm) throws IOException;
 
     List<DonationStatisticVm> getReportByPeriod(Instant fromDate, Instant toDate, Long campaignId, String groupBy);
@@ -86,6 +85,25 @@ class DefaultDonationService implements DonationService {
     private final CampaignService campaignService;
     private final CacheManager cacheManager;
     private final NotificationService notificationService;
+    private final HttpServletRequest httpServletRequest;
+
+    private String getFullDomain() {
+        HttpServletRequest request = httpServletRequest;
+        String scheme = request.getScheme(); // http hoặc https
+        String serverName = request.getServerName(); // example.com
+        int serverPort = request.getServerPort(); // 8080
+
+        // Ghép chuỗi để tạo domain đầy đủ
+        String fullDomain = scheme + "://" + serverName;
+
+        // Chỉ thêm port nếu không phải port mặc định (80 cho http, 443 cho https)
+        if ((scheme.equals("http") && serverPort != 80) ||
+                (scheme.equals("https") && serverPort != 443)) {
+            fullDomain += ":" + serverPort;
+        }
+
+        return fullDomain;
+    }
 
     private final RabbitTemplate rabbitTemplate;
     @Value("${rabbitmq.exchange.payment.name}")
@@ -152,9 +170,14 @@ class DefaultDonationService implements DonationService {
         Timer timer = new Timer();
         timer.schedule(new HandleUnusedBillDonationTask(this, new DonationVerifyEventVm(savedDonation.getId(), donationPostVm.campaign().getId())), vnpayConfig.exprationTime);
 
-        if(donation.getDonor() != null) {
+        if (donation.getDonor() != null) {
             Notification notification = new Notification();
-            notification.setMessage("Chiến dịch " + campaignService.findById(donationPostVm.campaign().getId()).name()  + " đang chờ quyên góp");
+            notification.setMessage("Chiến dịch " + campaignService.findById(donationPostVm.campaign().getId()).name()
+                    + "đang chờ quyên góp "
+                    + "<a style=\"text-decoration: underline; color: blue;\" href=\""
+                    + getFullDomain()
+                    + "\"> tại đây </a>"
+            );
             notification.setUser(donation.getDonor());
 
             notificationService.sendTo(notification);
@@ -196,7 +219,7 @@ class DefaultDonationService implements DonationService {
                 donation.setDonationDate(Instant.now());
 
                 this.updateSuccessDonationAndAmountTotalCampaign(donation, donationVerifyEventVm.campaignId());
-                if(donation.getDonor() != null) {
+                if (donation.getDonor() != null) {
                     Notification notification = new Notification();
                     notification.setMessage("Cảm ơn sự hỗ trợ của bạn cho chiến dịch " + campaignService.findById(donationVerifyEventVm.campaignId()).name());
                     notification.setUser(donation.getDonor());
@@ -304,10 +327,10 @@ class DefaultDonationService implements DonationService {
                         donation.getDonationDate().equals(donationExportVm.from())
                                 || donation.getDonationDate().equals(donationExportVm.to())
                                 || (donation.getDonationDate().isAfter(
-                                        donationExportVm.from().atStartOfDay().toInstant(ZoneOffset.of("+7")))
+                                donationExportVm.from().atStartOfDay().toInstant(ZoneOffset.of("+7")))
                                 && donation.getDonationDate().isBefore(
-                                        donationExportVm.to().atStartOfDay().toInstant(ZoneOffset.of("+7"))
-                                ))
+                                donationExportVm.to().atStartOfDay().toInstant(ZoneOffset.of("+7"))
+                        ))
                 ).collect(Collectors.toList());
 
         if (donationExportVm.studentOnly() == true) {
@@ -321,6 +344,58 @@ class DefaultDonationService implements DonationService {
 
     @Override
     public List<DonationStatisticVm> getReportByPeriod(Instant fromDate, Instant toDate, Long campaignId, String groupBy) {
-        return donationRepository.getDonationsByPeriodWithFilters(fromDate, toDate, campaignId, groupBy);
+        List<DonationStatisticVm> rawStatistics = donationRepository.getDonationsByPeriodWithFilters(fromDate, toDate, campaignId, groupBy);
+
+        // Tạo danh sách các period đầy đủ
+        List<String> allPeriods = generatePeriods(fromDate, toDate, groupBy);
+
+        // Kết hợp kết quả với tất cả các period, đảm bảo mỗi period đều có mặt
+        return mergeWithAllPeriods(rawStatistics, allPeriods);
+    }
+
+    private List<DonationStatisticVm> mergeWithAllPeriods(
+            List<DonationStatisticVm> statistics,
+            List<String> allPeriods) {
+
+        // Tạo Map để dễ dàng tra cứu donations theo period
+        Map<String, DonationStatisticVm> statisticsMap = statistics.stream()
+                .collect(Collectors.toMap(DonationStatisticVm::getPeriod, stat -> stat));
+
+        // Tạo danh sách kết quả, bao gồm tất cả các period
+        return allPeriods.stream()
+                .map(period -> {
+                    // Nếu period có trong statisticsMap, dùng kết quả đã có
+                    DonationStatisticVm stat = statisticsMap.get(period);
+                    if (stat == null) {
+                        // Nếu không có, tạo mới với totalAmount = 0
+                        stat = new DonationStatisticVm(period, BigDecimal.ZERO);
+                    }
+                    return stat;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<String> generatePeriods(Instant fromDate, Instant toDate, String groupBy) {
+        ZoneId zoneId = JacksonConfig.MY_ZONE_ID;
+        List<String> periods = new ArrayList<>();
+
+        LocalDate startDate = LocalDate.ofInstant(fromDate, zoneId);
+        LocalDate endDate = LocalDate.ofInstant(toDate, zoneId);
+
+        if ("MONTH".equalsIgnoreCase(groupBy)) {
+            // Tạo danh sách tháng từ startDate đến endDate
+            while (!startDate.isAfter(endDate)) {
+                periods.add(startDate.format(DateTimeFormatter.ofPattern("MM-yyyy")));
+                startDate = startDate.plusMonths(1);
+            }
+        } else if ("YEAR".equalsIgnoreCase(groupBy)) {
+            // Tạo danh sách năm từ startDate đến endDate
+            while (!startDate.isAfter(endDate)) {
+                periods.add(startDate.format(DateTimeFormatter.ofPattern("yyyy")));
+                startDate = startDate.plusYears(1);
+            }
+        }
+
+        return periods;
     }
 }

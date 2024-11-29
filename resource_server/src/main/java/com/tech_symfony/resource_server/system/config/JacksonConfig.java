@@ -21,6 +21,8 @@ public class JacksonConfig {
 
     public static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     public static String MY_TIME_ZONE= "Asia/Ho_Chi_Minh";
+    public static ZoneId MY_ZONE_ID= TimeZone.getTimeZone(JacksonConfig.MY_TIME_ZONE).toZoneId();
+
 
     @Bean
     public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
