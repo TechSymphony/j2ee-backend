@@ -28,7 +28,7 @@ public interface CampaignService {
 
     CampaignDetailVm save(CampaignPostVm campaign, MultipartFile image) throws Exception;
 
-    CampaignDetailVm update(Integer id, CampaignPostVm campaign, MultipartFile image) throws Exception;
+    CampaignDetailVm update(Integer id, CampaignPostVm campaign, String old_image, MultipartFile image) throws Exception;
 
     Boolean delete(Integer id);
 
@@ -80,11 +80,14 @@ class DefaultCampaignService implements CampaignService {
 
 
     @Override
-    public CampaignDetailVm update(Integer id, CampaignPostVm campaign, MultipartFile image) throws Exception {
+    public CampaignDetailVm update(Integer id, CampaignPostVm campaign, String old_image, MultipartFile image) throws Exception {
         Campaign existingCampaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
 
         Campaign updatedCampaign = campaignMapper.updateCampaignFromDto(campaign, existingCampaign);
+        if (old_image != null && !old_image.isEmpty()) {
+            updatedCampaign.setImage(old_image);
+        }
         if (image != null && !image.isEmpty()) {
             String imageUrl = imageService.sendImage(image);
             updatedCampaign.setImage(imageUrl);

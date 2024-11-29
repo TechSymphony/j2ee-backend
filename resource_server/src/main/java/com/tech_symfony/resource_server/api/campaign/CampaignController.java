@@ -40,8 +40,8 @@ public class CampaignController {
     }
 
     @PutMapping("/{id}")
-    public CampaignDetailVm updateCampaign(@PathVariable Integer id, @Valid @RequestPart("campaign") CampaignPostVm campaign, @RequestPart("image") MultipartFile image) throws Exception {
-        return campaignService.update(id, campaign, image);
+    public CampaignDetailVm updateCampaign(@PathVariable Integer id, @Valid @RequestPart("campaign") CampaignPostVm campaign,@RequestPart("old_image") String old_image, @RequestPart("image") MultipartFile image) throws Exception {
+        return campaignService.update(id, campaign, old_image, image);
     }
 
     @DeleteMapping("/{id}")
