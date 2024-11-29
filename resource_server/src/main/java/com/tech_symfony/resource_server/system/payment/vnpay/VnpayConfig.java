@@ -31,7 +31,7 @@ public class VnpayConfig {
     @Value("${secretKey:XT1UMKG6FMPBPLPRXJJ6ZOQRHD4DOX20}")
     public String secretKey;
 
-    @Value("${vnp_ReturnUrl:http://localhost:3000/payment-success}")
+    @Value("${vnp_ReturnFrontendUrl:http://localhost:3000/payment-success}")
     public String vnp_ReturnFrontendUrl;
 
     @Value("${vnp_ApiUrl:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}")
