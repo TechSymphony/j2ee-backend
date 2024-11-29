@@ -121,6 +121,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/.well-known/openid-configuration",
                                 "/login",
+                                "/reset-password",
+                                "/reset/**",
                                 "/error",
                                 "/webjars/**",
                                 "/images/**",

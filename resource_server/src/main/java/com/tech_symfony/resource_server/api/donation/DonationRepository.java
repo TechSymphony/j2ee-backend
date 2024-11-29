@@ -48,6 +48,7 @@ public interface DonationRepository extends JpaRepository<Donation, Integer>, Jp
             "        d.amountTotal as amountTotal " +
             "      FROM Donation d " +
             "      WHERE d.donationDate BETWEEN :fromDate AND :toDate " +
+            "      AND d.status= com.tech_symfony.resource_server.api.donation.constant.DonationStatus.COMPLETED " +
             "      AND (:campaignId IS NULL OR d.campaign.id = :campaignId)) subquery " +
             "GROUP BY subquery.period ORDER BY period ")
 
