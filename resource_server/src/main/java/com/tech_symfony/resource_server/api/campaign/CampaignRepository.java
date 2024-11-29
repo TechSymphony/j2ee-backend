@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +22,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Integer>, Jp
             "SET c.currentAmount = c.currentAmount + :amountTotal, c.numberOfDonations = c.numberOfDonations + 1 " +
             "WHERE c.id = :id")
     int  updateCampaignAmount(@Param("id") Integer id, @Param("amountTotal") BigDecimal amountTotal);
+
+    List<Campaign> findAllByStatus(CampaignsStatusEnum status);
 }

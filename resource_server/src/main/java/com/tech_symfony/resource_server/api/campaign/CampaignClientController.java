@@ -2,11 +2,9 @@ package com.tech_symfony.resource_server.api.campaign;
 
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
 import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
 import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import com.tech_symfony.resource_server.api.donation.DonationService;
 import com.tech_symfony.resource_server.api.donation.viewmodel.DonationListVm;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -34,6 +32,12 @@ public class CampaignClientController {
         allParams.put("limit", "6");
 
         return campaignService.findAll(allParams);
+    }
+
+    @GetMapping("/public/campaigns/options")
+    public List<CampaignListVm> getAllCampaignOptions() {
+
+        return campaignService.findAllActiveCampaign();
     }
 
     @GetMapping("/public/campaigns/{id}")

@@ -9,16 +9,19 @@ import com.tech_symfony.resource_server.system.image.ImageService;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.SpringVersion;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface CampaignService {
+    List<CampaignListVm> findAllActiveCampaign();
+
     Page<CampaignListVm> findAll(Map<String, String> params);
 
     CampaignDetailVm findById(Integer id);
@@ -47,6 +50,12 @@ class DefaultCampaignService implements CampaignService {
     private final ImageService imageService;
 
     @Override
+    public List<CampaignListVm> findAllActiveCampaign() {
+        return campaignRepository.findAllByStatus(CampaignsStatusEnum.APPROVED)
+                .stream().map(campaignMapper::entityToCampaignListVm).collect(Collectors.toList());
+    }
+
+    @Override
     public Page<CampaignListVm> findAll(Map<String, String> params) {
         return paginationCommand.execute(params, campaignRepository, campaignMapper, specificationBuilder);
     }
@@ -68,7 +77,6 @@ class DefaultCampaignService implements CampaignService {
         Campaign savedCampaign = campaignRepository.save(newCampaign);
         return campaignMapper.entityToCampaignDetailVm(savedCampaign);
     }
-
 
 
     @Override
