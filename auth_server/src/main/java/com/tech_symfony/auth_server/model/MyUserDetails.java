@@ -10,19 +10,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 
-public class MyUserDetails implements UserDetails {
+public class MyUserDetails implements UserDetails, OAuth2User {
 
     private User user;
 
     private Collection<? extends GrantedAuthority> authorities;
+    private Map<String, Object> attributes;
 
     public MyUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
         this.authorities = authorities;
     }
 
+    public MyUserDetails(User user, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+        this.user = user;
+        this.authorities = authorities;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public <A> A getAttribute(String name) {
+        return OAuth2User.super.getAttribute(name);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return this.attributes;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,7 +74,11 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getEnabled();
     }
 
+    @Override
+    public String getName() {
+        return user.getUsername();
+    }
 }

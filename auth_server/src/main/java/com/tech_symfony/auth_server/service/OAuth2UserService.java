@@ -28,11 +28,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         log.trace("Load user {}", oAuth2UserRequest);
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
-        processOAuth2User(oAuth2UserRequest, oAuth2User);
-        return oAuth2User;
+        MyUserDetails myUserDetails = new MyUserDetails(processOAuth2User(oAuth2UserRequest, oAuth2User), null, oAuth2User.getAttributes());
+        return myUserDetails;
     }
 
-    private void processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
+    private User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
 
         User userFromOauth2 = User.builder()
                 .email(oAuth2User.getAttributes().get("email").toString())
@@ -51,9 +51,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         User user = userRepository.findByUsername(userFromOauth2.getEmail());
         if (user == null) {
-            registerNewUser(userFromOauth2);
+            return registerNewUser(userFromOauth2);
         } else {
-            updateExistingUser(user, userFromOauth2);
+            return updateExistingUser(user, userFromOauth2);
         }
     }
 
