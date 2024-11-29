@@ -1,9 +1,6 @@
 package com.tech_symfony.resource_server.api.campaign;
 
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
-import com.tech_symfony.resource_server.api.donation.DonationService;
+import com.tech_symfony.resource_server.api.campaign.viewmodel.*;
 import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,6 +38,18 @@ public class CampaignController {
     @PutMapping("/{id}")
     public CampaignDetailVm updateCampaign(@PathVariable Integer id, @Valid @RequestPart("campaign") CampaignPostVm campaign,@RequestPart("old_image") String old_image, @RequestPart("image") MultipartFile image) throws Exception {
         return campaignService.update(id, campaign, old_image, image);
+    }
+
+    @PatchMapping("/{id}/disabled")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateDisabledStatus(@PathVariable Integer id, @Valid @RequestBody CampaignDisabledStatusUpdateVm campaignDisabledStatusUpdateVm) {
+        campaignService.updateDisabledStatus(id, campaignDisabledStatusUpdateVm);
+    }
+
+    @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateStatus(@PathVariable Integer id, @Valid @RequestBody CampaignStatusUpdateVm campaignStatusUpdateVm) {
+        campaignService.updateStatus(id, campaignStatusUpdateVm);
     }
 
     @DeleteMapping("/{id}")

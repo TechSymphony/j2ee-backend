@@ -1,8 +1,6 @@
 package com.tech_symfony.resource_server.api.campaign;
 
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignDetailVm;
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignListVm;
-import com.tech_symfony.resource_server.api.campaign.viewmodel.CampaignPostVm;
+import com.tech_symfony.resource_server.api.campaign.viewmodel.*;
 import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.image.ImageService;
@@ -37,6 +35,9 @@ public interface CampaignService {
 
     boolean isAbleToDonate(Integer id);
 
+    void updateDisabledStatus(Integer id, CampaignDisabledStatusUpdateVm campaignDisabledStatusUpdateVm);
+
+    void updateStatus(Integer id, CampaignStatusUpdateVm campaignStatusUpdateVm);
 }
 
 @Service
@@ -94,6 +95,24 @@ class DefaultCampaignService implements CampaignService {
         }
         Campaign savedCampaign = campaignRepository.save(updatedCampaign);
         return campaignMapper.entityToCampaignDetailVm(savedCampaign);
+    }
+
+    @Override
+    @Transactional
+    public void updateDisabledStatus(Integer id, CampaignDisabledStatusUpdateVm campaignDisabledStatusUpdateVm) {
+        Campaign campaign = campaignRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+        campaign.setDisabledAt(campaignDisabledStatusUpdateVm.disabledAt());
+        campaignRepository.save(campaign);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Integer id,  CampaignStatusUpdateVm campaignStatusUpdateVm) {
+        Campaign campaign = campaignRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.RESOURCE_NOT_FOUND, id));
+        campaign.setStatus(campaignStatusUpdateVm.status());
+        campaignRepository.save(campaign);
     }
 
     @Override
