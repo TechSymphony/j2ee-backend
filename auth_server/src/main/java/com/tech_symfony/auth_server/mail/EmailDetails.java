@@ -1,4 +1,4 @@
-package system.mail;
+package com.tech_symfony.auth_server.mail;
 
 import lombok.Builder;
 

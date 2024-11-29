@@ -24,7 +24,7 @@ import lombok.ToString;
 public class BaseEntity implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	public Integer getId() {
