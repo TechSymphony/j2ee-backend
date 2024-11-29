@@ -12,6 +12,7 @@ import com.tech_symfony.resource_server.commonlibrary.constants.MessageCode;
 import com.tech_symfony.resource_server.commonlibrary.exception.NotFoundException;
 import com.tech_symfony.resource_server.system.config.JacksonConfig;
 import com.tech_symfony.resource_server.system.export.ExportPdfService;
+import com.tech_symfony.resource_server.system.mail.EmailService;
 import com.tech_symfony.resource_server.system.pagination.PaginationCommand;
 import com.tech_symfony.resource_server.system.pagination.SpecificationBuilderPagination;
 import com.tech_symfony.resource_server.system.payment.vnpay.PaymentService;
@@ -86,6 +87,7 @@ class DefaultDonationService implements DonationService {
     private final CacheManager cacheManager;
     private final NotificationService notificationService;
     private final HttpServletRequest httpServletRequest;
+    private final EmailService emailService;
 
     private String getFullDomain() {
         HttpServletRequest request = httpServletRequest;
@@ -173,12 +175,13 @@ class DefaultDonationService implements DonationService {
         if (donation.getDonor() != null) {
             Notification notification = new Notification();
             notification.setMessage("Chiến dịch " + campaignService.findById(donationPostVm.campaign().getId()).name()
-                    + "đang chờ quyên góp "
+                    + " đang chờ quyên góp "
                     + "<a style=\"text-decoration: underline; color: blue;\" href=\""
                     + donation.getPaymentUrl()
                     + "\"> tại đây </a>"
             );
             notification.setUser(donation.getDonor());
+            emailService.sendEmail(donation.getDonor().getEmail(), "Thông báo quyên góp", notification.getMessage());
 
             notificationService.sendTo(notification);
         }
@@ -223,6 +226,8 @@ class DefaultDonationService implements DonationService {
                     Notification notification = new Notification();
                     notification.setMessage("Cảm ơn sự hỗ trợ của bạn cho chiến dịch " + campaignService.findById(donationVerifyEventVm.campaignId()).name());
                     notification.setUser(donation.getDonor());
+
+                    emailService.sendEmail(donation.getDonor().getEmail(), "Thông báo quyên góp", notification.getMessage());
 
                     notificationService.sendTo(notification);
                 }
