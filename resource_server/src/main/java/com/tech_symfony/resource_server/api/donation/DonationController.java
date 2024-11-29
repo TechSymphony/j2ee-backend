@@ -125,7 +125,7 @@ public class DonationController {
     @PutMapping(value = "/{id}/payment")
     public DonationDetailVm verify(
             @PathVariable Integer id,
-            @Valid DonationVerifyPutVm donationVerifyPutVm
+            @Valid @RequestBody DonationVerifyPutVm donationVerifyPutVm
     ) {
         Donation donation = donationService.findById(id);
         if (donation.getIsAbleToPreview()) {
