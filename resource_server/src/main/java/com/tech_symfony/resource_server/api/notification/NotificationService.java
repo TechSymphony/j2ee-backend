@@ -27,9 +27,8 @@ class DefaultMessageService implements NotificationService {
 
     @Override
     public List<Notification> getNotificationsByUserName(String username) {
-        System.out.println(username);
         User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return notificationRepository.findNotificationByUser(user);
+        return notificationRepository.findNotificationByUserOrderByCreatedAtDesc(user);
     }
 
     @Override
@@ -47,7 +46,7 @@ class DefaultMessageService implements NotificationService {
 
     @Override
     public void sendMessagesToUser(User user) {
-        List<Notification> notifications = notificationRepository.findNotificationByUser(user);
+        List<Notification> notifications = notificationRepository.findNotificationByUserOrderByCreatedAtDesc(user);
         for (Notification notification : notifications) {
             simpMessagingTemplate.convertAndSend("/specific/" + user.getUsername() + "/messages", notification);
         }
