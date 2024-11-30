@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
+import org.springframework.lang.Nullable;
 
 import java.util.Set;
 
@@ -16,10 +17,10 @@ public record UserPostVm(
         @NotNull(message = "Email must not be empty")
         String email,
 
-        @NotEmpty(message = "Phone must not be empty")
+        @Nullable
         String phone,
 
-        @NotNull(message = "Role cannot be null")
+        @Nullable
         Role role,
 
         @NotEmpty(message = "Username must not be empty")
