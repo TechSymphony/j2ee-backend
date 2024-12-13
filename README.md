@@ -1,12 +1,13 @@
-# j2ee-backend
+# Xây dựng Website từ thiện cho cơ sở giáo dục đại học
 
 # Tổng quan đề tài
 
 ## 1.1	Đặt vấn đề
 Trong môi trường giáo dục, các hoạt động từ thiện không chỉ thể hiện tinh thần tương thân tương ái mà còn là một trong những tiêu chí đánh giá điểm rèn luyện của sinh viên. Tuy nhiên, thực tế hiện nay cho thấy việc quản lý và tổ chức các chiến dịch từ thiện còn gặp nhiều khó khăn:
-•	Thiếu minh bạch: Nhiều chiến dịch từ thiện không được công khai đầy đủ thông tin, gây mất niềm tin từ người đóng góp.
-•	Quy trình thủ công: Hầu hết các khâu như đăng ký, xác minh, kiểm duyệt nội dung, báo cáo tài chính và kiểm tra danh sách sinh viên tham gia đều được thực hiện thủ công, dễ dẫn đến sai sót và mất thời gian.
-•	Khó quản lý dữ liệu: Không có hệ thống quản lý tập trung, dẫn đến khó khăn trong việc theo dõi các chiến dịch, người thụ hưởng, hay các đóng góp từ người tài trợ.
+- Thiếu minh bạch: Nhiều chiến dịch từ thiện không được công khai đầy đủ thông tin, gây mất niềm tin từ người đóng góp.
+-	Quy trình thủ công: Hầu hết các khâu như đăng ký, xác minh, kiểm duyệt nội dung, báo cáo tài chính và kiểm tra danh sách sinh viên tham gia đều được thực hiện thủ công, dễ dẫn đến sai sót và mất thời gian.
+-	Khó quản lý dữ liệu: Không có hệ thống quản lý tập trung, dẫn đến khó khăn trong việc theo dõi các chiến dịch, người thụ hưởng, hay các đóng góp từ người tài trợ.
+
 Nhằm giải quyết các vấn đề trên, nhóm đề xuất xây dựng một hệ thống website quản lý chiến dịch từ thiện. Hệ thống này sẽ hỗ trợ tự động hóa quy trình, đảm bảo tính công khai, minh bạch và nâng cao hiệu quả quản lý. Qua đó, không chỉ cải thiện trải nghiệm của người tham gia mà còn góp phần nâng cao uy tín và sự chuyên nghiệp của tổ chức.
 ## 1.2	Nghiệp vụ
 ## 1.2.1	Quy trình phê duyệt và kiểm duyệt nội dung từ thiện
@@ -102,3 +103,4 @@ Bước 3: Phòng CTSV sẽ xem xét và cập nhật điểm rèn luyện dựa
 ```bash
 ./mvnw spring-boot:run
 ```
+
